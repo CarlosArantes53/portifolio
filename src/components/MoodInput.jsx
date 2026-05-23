@@ -69,24 +69,6 @@ export default function MoodInput({ onMood, onReset, modelReady }) {
           </button>
         )}
       </div>
-
-      <div className="h-4 flex items-center">
-        {modelReady ? (
-          <span
-            className="text-xs font-mono flex items-center gap-1"
-            style={{ color: 'rgba(125, 211, 252, 0.35)', fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            <span style={{ fontSize: '7px' }}>✦</span> AI ativo
-          </span>
-        ) : (
-          <span
-            className="text-xs font-mono"
-            style={{ color: 'rgba(255,255,255,0.15)', fontFamily: "'JetBrains Mono', monospace" }}
-          >
-            carregando modelo...
-          </span>
-        )}
-      </div>
     </div>
   )
 }
