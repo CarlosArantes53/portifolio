@@ -6,15 +6,18 @@ import About from './components/About'
 import Projects from './components/Projects'
 import Skills from './components/Skills'
 import Contact from './components/Contact'
+import useMoodPalette from './hooks/useMoodPalette'
 
 export default function App() {
+  const { colors, modelReady, applyMood, resetMood } = useMoodPalette()
+
   return (
     <>
-      <Background />
+      <Background colors={colors} />
       <CustomCursor />
       <Header />
       <main>
-        <Hero />
+        <Hero onMood={applyMood} onReset={resetMood} modelReady={modelReady} />
         <About />
         <Projects />
         <Skills />

@@ -1,28 +1,46 @@
 import { useEffect, useRef } from 'react'
+import { DEFAULT_COLORS } from '../hooks/useMoodPalette'
 
-const COLORS = [
-  'rgba(0, 15, 60, 0.70)',
-  'rgba(10, 40, 140, 0.60)',
-  'rgba(25, 70, 210, 0.50)',
-  'rgba(45, 0, 100, 0.65)',
-  'rgba(85, 20, 190, 0.55)',
-  'rgba(120, 55, 255, 0.45)',
-]
+function parseRgba(str) {
+  const m = str.match(/[\d.]+/g).map(Number)
+  return { r: m[0], g: m[1], b: m[2], a: m[3] }
+}
+
+function lerp(a, b, t) { return a + (b - a) * t }
+
+function lerpColor(from, to, t) {
+  return {
+    r: lerp(from.r, to.r, t),
+    g: lerp(from.g, to.g, t),
+    b: lerp(from.b, to.b, t),
+    a: lerp(from.a, to.a, t),
+  }
+}
+
+function toRgba({ r, g, b, a }) {
+  return `rgba(${Math.round(r)},${Math.round(g)},${Math.round(b)},${a.toFixed(3)})`
+}
 
 class LiquidBubble {
-  constructor(w, h) {
+  constructor(w, h, colors) {
     this.w = w
     this.h = h
-    this.reset()
+    this.reset(colors)
   }
 
-  reset() {
+  reset(colors) {
     this.x = Math.random() * this.w
     this.y = Math.random() * this.h
     this.radius = Math.random() * 150 + 50
     this.speedX = (Math.random() - 0.5) * 1.5
     this.speedY = (Math.random() - 0.5) * 1.5
-    this.color = COLORS[Math.floor(Math.random() * COLORS.length)]
+    const c = parseRgba(colors[Math.floor(Math.random() * colors.length)])
+    this.current = { ...c }
+    this.target = { ...c }
+  }
+
+  setTarget(colors) {
+    this.target = parseRgba(colors[Math.floor(Math.random() * colors.length)])
   }
 
   update() {
@@ -30,18 +48,25 @@ class LiquidBubble {
     this.y += this.speedY
     if (this.x + this.radius > this.w || this.x - this.radius < 0) this.speedX *= -1
     if (this.y + this.radius > this.h || this.y - this.radius < 0) this.speedY *= -1
+    this.current = lerpColor(this.current, this.target, 0.012)
   }
 
   draw(ctx) {
     ctx.beginPath()
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
-    ctx.fillStyle = this.color
+    ctx.fillStyle = toRgba(this.current)
     ctx.fill()
   }
 }
 
-export default function Background() {
+export default function Background({ colors = DEFAULT_COLORS }) {
   const canvasRef = useRef(null)
+  const bubblesRef = useRef(null)
+
+  useEffect(() => {
+    if (!bubblesRef.current) return
+    bubblesRef.current.forEach(b => b.setTarget(colors))
+  }, [colors])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -53,14 +78,17 @@ export default function Background() {
     }
     setSize()
 
-    let bubbles = Array.from({ length: 20 }, () => new LiquidBubble(canvas.width, canvas.height))
-    let rafId
+    bubblesRef.current = Array.from(
+      { length: 20 },
+      () => new LiquidBubble(canvas.width, canvas.height, DEFAULT_COLORS)
+    )
 
+    let rafId
     const animate = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.filter = 'blur(30px)'
-      bubbles.forEach(b => { b.update(); b.draw(ctx) })
+      bubblesRef.current.forEach(b => { b.update(); b.draw(ctx) })
       ctx.filter = 'none'
       rafId = requestAnimationFrame(animate)
     }
@@ -68,7 +96,10 @@ export default function Background() {
 
     const onResize = () => {
       setSize()
-      bubbles = Array.from({ length: 20 }, () => new LiquidBubble(canvas.width, canvas.height))
+      bubblesRef.current = Array.from(
+        { length: 20 },
+        () => new LiquidBubble(canvas.width, canvas.height, DEFAULT_COLORS)
+      )
     }
     window.addEventListener('resize', onResize)
 

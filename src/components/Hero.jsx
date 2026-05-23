@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import MoodInput from './MoodInput'
 
 const TAGLINES = [
   'Computer Vision Engineer',
@@ -7,7 +8,7 @@ const TAGLINES = [
   'Web & 3D Creator',
 ]
 
-export default function Hero() {
+export default function Hero({ onMood, onReset, modelReady }) {
   const taglineRef = useRef(null)
   const idx = useRef(0)
   const charIdx = useRef(0)
@@ -117,6 +118,8 @@ export default function Hero() {
           Lattes
         </a>
       </div>
+
+      <MoodInput onMood={onMood} onReset={onReset} modelReady={modelReady} />
 
       {/* Scroll hint */}
       <div className="absolute bottom-10 flex flex-col items-center gap-2 animate-bounce">
