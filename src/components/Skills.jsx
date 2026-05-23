@@ -47,7 +47,7 @@ export default function Skills() {
       <div ref={ref} className="fade-in-section max-w-6xl mx-auto">
         <p
           className="font-mono text-sm tracking-widest mb-4"
-          style={{ color: '#fd8d3c', fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ color: '#818cf8', fontFamily: "'JetBrains Mono', monospace" }}
         >
           {'// habilidades'}
         </p>
@@ -72,7 +72,7 @@ export default function Skills() {
                 </span>
                 <span
                   className="font-mono text-xs"
-                  style={{ color: '#fed272', fontFamily: "'JetBrains Mono', monospace" }}
+                  style={{ color: '#7dd3fc', fontFamily: "'JetBrains Mono', monospace" }}
                 >
                   {level}%
                 </span>
@@ -85,7 +85,7 @@ export default function Skills() {
                   className="h-full rounded-full"
                   style={{
                     width: `${level}%`,
-                    background: 'linear-gradient(90deg, #fd8d3c, #fed272)',
+                    background: 'linear-gradient(90deg, #6366f1, #7dd3fc)',
                   }}
                 />
               </div>
@@ -101,12 +101,12 @@ export default function Skills() {
               className="rounded-2xl p-6"
               style={{
                 background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(254,210,114,0.12)',
+                border: '1px solid rgba(125,211,252,0.12)',
               }}
             >
               <h3
                 className="font-syne font-semibold mb-4 text-base"
-                style={{ color: '#fed272', fontFamily: "'Syne', sans-serif" }}
+                style={{ color: '#7dd3fc', fontFamily: "'Syne', sans-serif" }}
               >
                 {title}
               </h3>

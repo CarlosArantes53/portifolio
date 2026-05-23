@@ -17,7 +17,7 @@ export default function About() {
       <div ref={ref} className="fade-in-section max-w-4xl mx-auto">
         <p
           className="font-mono text-sm tracking-widest mb-4"
-          style={{ color: '#fd8d3c', fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ color: '#818cf8', fontFamily: "'JetBrains Mono', monospace" }}
         >
           {'// sobre mim'}
         </p>
@@ -32,13 +32,13 @@ export default function About() {
         <div className="grid md:grid-cols-2 gap-10 text-white/70 text-base leading-relaxed">
           <div>
             <p className="mb-4">
-              Sou um desenvolvedor de software apaixonado por <span style={{ color: '#fed272' }}>Visão Computacional</span> e Inteligência Artificial.
+              Sou um desenvolvedor de software apaixonado por <span style={{ color: '#7dd3fc' }}>Visão Computacional</span> e Inteligência Artificial.
               Trabalho com Python e JavaScript para construir soluções que vão de reconhecimento de linguagem de sinais com MediaPipe
               a blogs astronômicos com Three.js e NASA API.
             </p>
             <p>
               Tenho interesse em acessibilidade digital — com projetos voltados para comunicação em{' '}
-              <span style={{ color: '#fed272' }}>Libras (Língua Brasileira de Sinais)</span> — e em ferramentas criativas
+              <span style={{ color: '#7dd3fc' }}>Libras (Língua Brasileira de Sinais)</span> — e em ferramentas criativas
               para automação 3D com Blender e geração de conteúdo visual.
             </p>
           </div>
@@ -50,7 +50,7 @@ export default function About() {
                 href="https://carlosarantes53.github.io/NASA_MBA/"
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ color: '#fed272' }}
+                style={{ color: '#7dd3fc' }}
                 className="hover:underline"
               >
                 CosmosView
@@ -75,9 +75,9 @@ export default function About() {
             <div
               key={label}
               className="border rounded-xl p-5 text-center"
-              style={{ borderColor: 'rgba(254,210,114,0.2)', background: 'rgba(0,0,0,0.3)' }}
+              style={{ borderColor: 'rgba(125,211,252,0.2)', background: 'rgba(0,0,0,0.3)' }}
             >
-              <p className="font-syne font-bold text-2xl mb-1" style={{ color: '#fed272', fontFamily: "'Syne', sans-serif" }}>
+              <p className="font-syne font-bold text-2xl mb-1" style={{ color: '#7dd3fc', fontFamily: "'Syne', sans-serif" }}>
                 {value}
               </p>
               <p className="text-white/50 text-xs font-mono" style={{ fontFamily: "'JetBrains Mono', monospace" }}>

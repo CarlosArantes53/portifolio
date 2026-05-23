@@ -26,8 +26,8 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <a
           href="#topo"
-          className="font-syne font-bold text-lg tracking-widest text-amber-400 hover:text-amber-300 transition-colors"
-          style={{ color: '#fed272' }}
+          className="font-syne font-bold text-lg tracking-widest text-sky-300 hover:text-sky-300 transition-colors"
+          style={{ color: '#7dd3fc' }}
         >
           CA
         </a>
@@ -38,7 +38,7 @@ export default function Header() {
             <a
               key={href}
               href={href}
-              className="font-mono text-sm text-white/60 hover:text-amber-300 transition-colors tracking-wider"
+              className="font-mono text-sm text-white/60 hover:text-sky-300 transition-colors tracking-wider"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               {label}
@@ -66,7 +66,7 @@ export default function Header() {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className="font-mono text-sm text-white/70 hover:text-amber-300 transition-colors tracking-wider"
+              className="font-mono text-sm text-white/70 hover:text-sky-300 transition-colors tracking-wider"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}
             >
               {label}

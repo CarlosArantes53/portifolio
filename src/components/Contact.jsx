@@ -61,7 +61,7 @@ export default function Contact() {
       <div ref={ref} className="fade-in-section max-w-4xl mx-auto text-center">
         <p
           className="font-mono text-sm tracking-widest mb-4"
-          style={{ color: '#fd8d3c', fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ color: '#818cf8', fontFamily: "'JetBrains Mono', monospace" }}
         >
           {'// contato'}
         </p>
@@ -88,18 +88,18 @@ export default function Contact() {
               className="flex flex-col items-center gap-3 p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1 group"
               style={{
                 background: 'rgba(0,0,0,0.4)',
-                border: '1px solid rgba(254,210,114,0.15)',
+                border: '1px solid rgba(125,211,252,0.15)',
               }}
             >
               <span
-                className="text-white/50 group-hover:text-amber-300 transition-colors"
+                className="text-white/50 group-hover:text-sky-300 transition-colors"
                 style={{ color: 'rgba(255,255,255,0.5)' }}
               >
                 {icon}
               </span>
               <span
                 className="font-syne font-semibold text-sm"
-                style={{ fontFamily: "'Syne', sans-serif", color: '#fed272' }}
+                style={{ fontFamily: "'Syne', sans-serif", color: '#7dd3fc' }}
               >
                 {label}
               </span>
@@ -119,7 +119,7 @@ export default function Contact() {
           style={{ borderColor: 'rgba(255,255,255,0.06)', fontFamily: "'JetBrains Mono', monospace" }}
         >
           <span>© 2025 Carlos Eduardo de Paula Arantes</span>
-          <span style={{ color: '#fd8d3c' }}>Feito com React + Vite</span>
+          <span style={{ color: '#818cf8' }}>Feito com React + Vite</span>
         </div>
       </div>
     </section>

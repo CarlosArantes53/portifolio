@@ -4,13 +4,13 @@ export default function ProjectCard({ title, description, tags, url, demo }) {
       className="rounded-2xl p-6 flex flex-col gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group"
       style={{
         background: 'rgba(0,0,0,0.45)',
-        border: '1px solid rgba(254,210,114,0.15)',
+        border: '1px solid rgba(125,211,252,0.15)',
         backdropFilter: 'blur(8px)',
       }}
     >
       <div className="flex items-start justify-between gap-2">
         <h3
-          className="font-syne font-bold text-lg group-hover:text-amber-300 transition-colors"
+          className="font-syne font-bold text-lg group-hover:text-sky-300 transition-colors"
           style={{ fontFamily: "'Syne', sans-serif", color: '#f0f0f0' }}
         >
           {title}
@@ -34,7 +34,7 @@ export default function ProjectCard({ title, description, tags, url, demo }) {
               rel="noopener noreferrer"
               className="hover:opacity-80 transition-opacity"
               aria-label="Demo"
-              style={{ color: '#fed272' }}
+              style={{ color: '#7dd3fc' }}
             >
               <ExternalIcon />
             </a>

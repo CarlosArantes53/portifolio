@@ -64,7 +64,7 @@ export default function Projects() {
       <div ref={ref} className="fade-in-section max-w-6xl mx-auto">
         <p
           className="font-mono text-sm tracking-widest mb-4"
-          style={{ color: '#fd8d3c', fontFamily: "'JetBrains Mono', monospace" }}
+          style={{ color: '#818cf8', fontFamily: "'JetBrains Mono', monospace" }}
         >
           {'// projetos'}
         </p>
@@ -88,7 +88,7 @@ export default function Projects() {
             target="_blank"
             rel="noopener noreferrer"
             className="font-mono text-sm hover:underline transition-colors"
-            style={{ color: '#fed272', fontFamily: "'JetBrains Mono', monospace" }}
+            style={{ color: '#7dd3fc', fontFamily: "'JetBrains Mono', monospace" }}
           >
             Ver todos os repositórios →
           </a>

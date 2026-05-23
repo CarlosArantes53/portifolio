@@ -48,7 +48,7 @@ export default function Hero() {
     >
       <p
         className="font-mono text-sm tracking-widest mb-4"
-        style={{ color: '#fd8d3c', fontFamily: "'JetBrains Mono', monospace" }}
+        style={{ color: '#818cf8', fontFamily: "'JetBrains Mono', monospace" }}
       >
         {'< olá, mundo />'}
       </p>
@@ -58,7 +58,7 @@ export default function Hero() {
         style={{ fontSize: 'clamp(2.4rem, 6vw, 5rem)', fontFamily: "'Syne', sans-serif" }}
       >
         Carlos
-        <span style={{ color: '#fed272' }}> Eduardo</span>
+        <span style={{ color: '#7dd3fc' }}> Eduardo</span>
       </h1>
 
       <div
@@ -68,7 +68,7 @@ export default function Hero() {
         <span ref={taglineRef} />
         <span
           className="inline-block w-0.5 h-5 animate-pulse"
-          style={{ background: '#fed272' }}
+          style={{ background: '#7dd3fc' }}
         />
       </div>
 
@@ -83,8 +83,8 @@ export default function Hero() {
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-6 py-2.5 rounded-full border font-mono text-sm transition-all hover:scale-105"
           style={{
-            border: '1px solid #fed272',
-            color: '#fed272',
+            border: '1px solid #7dd3fc',
+            color: '#7dd3fc',
             fontFamily: "'JetBrains Mono', monospace",
           }}
         >
@@ -96,7 +96,7 @@ export default function Hero() {
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-sm transition-all hover:scale-105"
           style={{
-            background: '#fed272',
+            background: '#7dd3fc',
             color: '#000',
             fontFamily: "'JetBrains Mono', monospace",
           }}
