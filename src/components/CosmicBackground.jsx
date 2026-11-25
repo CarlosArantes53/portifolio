@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'preact/hooks'
 
 const GALAXY_COLORS = [
   '255, 255, 255', // crisp white
@@ -15,7 +15,7 @@ const SOLAR_PARTICLE_COLORS = [
   '180, 83, 9',   // copper ember (#b45309)
 ]
 
-function createGaussianGlowSprite(r, g, b, size = 256) {
+function createGaussianGlowSprite(r, g, b, size = 128) {
   const sprite = document.createElement('canvas')
   sprite.width = size
   sprite.height = size
@@ -35,16 +35,114 @@ function createGaussianGlowSprite(r, g, b, size = 256) {
   return sprite
 }
 
+function createStarGlowSprite(rgb, size = 32) {
+  const sprite = document.createElement('canvas')
+  sprite.width = size
+  sprite.height = size
+  const sctx = sprite.getContext('2d')
+  if (!sctx) return sprite
+
+  const half = size * 0.5
+  const grad = sctx.createRadialGradient(half, half, 0, half, half, half)
+  grad.addColorStop(0, `rgba(${rgb}, 0.65)`)
+  grad.addColorStop(1, `rgba(${rgb}, 0)`)
+  sctx.fillStyle = grad
+  sctx.fillRect(0, 0, size, size)
+  return sprite
+}
+
+function createNebulaSprite(color, alpha, size = 256) {
+  const sprite = document.createElement('canvas')
+  sprite.width = size
+  sprite.height = size
+  const sctx = sprite.getContext('2d')
+  if (!sctx) return sprite
+
+  const half = size * 0.5
+  const grad = sctx.createRadialGradient(half, half, 0, half, half, half)
+  grad.addColorStop(0, `rgba(${color}, ${alpha})`)
+  grad.addColorStop(0.55, `rgba(${color}, ${(alpha * 0.35).toFixed(4)})`)
+  grad.addColorStop(1, `rgba(${color}, 0)`)
+  sctx.fillStyle = grad
+  sctx.fillRect(0, 0, size, size)
+  return sprite
+}
+
+function createGalaxyBackdropCanvas(size = 256) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const gctx = canvas.getContext('2d')
+  if (!gctx) return canvas
+
+  const grad = gctx.createRadialGradient(
+    size * 0.5,
+    size * 0.45,
+    size * 0.04,
+    size * 0.5,
+    size * 0.5,
+    size * 0.72
+  )
+  grad.addColorStop(0, '#090f22')
+  grad.addColorStop(0.55, '#050814')
+  grad.addColorStop(1, '#020308')
+  gctx.fillStyle = grad
+  gctx.fillRect(0, 0, size, size)
+  return canvas
+}
+
+function createSolarBackdropCanvas(size = 256) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const sctx = canvas.getContext('2d')
+  if (!sctx) return canvas
+
+  const half = size * 0.5
+  const grad = sctx.createRadialGradient(half, half, 4, half, half, size * 0.75)
+  grad.addColorStop(0, '#fffef7')
+  grad.addColorStop(0.24, '#fff7e0')
+  grad.addColorStop(0.52, '#ffecd1')
+  grad.addColorStop(0.78, '#fde0be')
+  grad.addColorStop(1, '#f8d5b0')
+  sctx.fillStyle = grad
+  sctx.fillRect(0, 0, size, size)
+  return canvas
+}
+
+function createHeroCushionCanvas(size = 128) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const hctx = canvas.getContext('2d')
+  if (!hctx) return canvas
+
+  const half = size * 0.5
+  const grad = hctx.createRadialGradient(half, half, 0, half, half, half)
+  grad.addColorStop(0, 'rgba(255, 253, 245, 0.78)')
+  grad.addColorStop(0.65, 'rgba(255, 248, 228, 0.30)')
+  grad.addColorStop(1, 'rgba(255, 246, 220, 0)')
+  hctx.fillStyle = grad
+  hctx.fillRect(0, 0, size, size)
+  return canvas
+}
+
+function getDensityScale(width, height) {
+  if (width >= 1024) return 1
+  return Math.max(0.45, Math.min(1, (width * height) / (1280 * 720)))
+}
+
 function createStars(width, height) {
+  const density = getDensityScale(width, height)
   const layers = [
-    { count: 145, depth: 0.2, minSize: 0.55, maxSize: 1.25, speed: 0.04 },
-    { count: 100, depth: 0.5, minSize: 0.9, maxSize: 1.85, speed: 0.09 },
-    { count: 55, depth: 1.0, minSize: 1.3, maxSize: 2.6, speed: 0.16 },
+    { count: Math.round(145 * density), depth: 0.2, minSize: 0.55, maxSize: 1.25, speed: 0.04 },
+    { count: Math.round(100 * density), depth: 0.5, minSize: 0.9, maxSize: 1.85, speed: 0.09 },
+    { count: Math.round(55 * density), depth: 1.0, minSize: 1.3, maxSize: 2.6, speed: 0.16 },
   ]
   const stars = []
   for (const layer of layers) {
     for (let i = 0; i < layer.count; i++) {
-      const color = GALAXY_COLORS[Math.floor(Math.random() * GALAXY_COLORS.length)]
+      const colorIdx = Math.floor(Math.random() * GALAXY_COLORS.length)
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -55,7 +153,8 @@ function createStars(width, height) {
         phase: Math.random() * Math.PI * 2,
         twinkleSpeed: 0.8 + Math.random() * 2.2,
         baseAlpha: 0.35 + Math.random() * 0.65,
-        color,
+        colorIdx,
+        color: GALAXY_COLORS[colorIdx],
         sparkle: layer.depth === 1.0 && Math.random() > 0.62,
       })
     }
@@ -63,11 +162,12 @@ function createStars(width, height) {
   return stars
 }
 
-function createSolarWindParticles(maxRadius) {
+function createSolarWindParticles(width, height, maxRadius) {
+  const density = getDensityScale(width, height)
   const layers = [
-    { count: 65, depth: 0.3, speed: 0.42, sizeMin: 1.0, sizeMax: 2.0 },
-    { count: 60, depth: 0.65, speed: 0.78, sizeMin: 1.3, sizeMax: 2.7 },
-    { count: 50, depth: 1.05, speed: 1.22, sizeMin: 1.8, sizeMax: 3.4 },
+    { count: Math.round(65 * density), depth: 0.3, speed: 0.42, sizeMin: 1.0, sizeMax: 2.0 },
+    { count: Math.round(60 * density), depth: 0.65, speed: 0.78, sizeMin: 1.3, sizeMax: 2.7 },
+    { count: Math.round(50 * density), depth: 1.05, speed: 1.22, sizeMin: 1.8, sizeMax: 3.4 },
   ]
   const particles = []
   for (const layer of layers) {
@@ -172,6 +272,7 @@ export default function CosmicBackground({ theme, parallax }) {
   const themeRef = useRef(theme)
   const shockwaveRef = useRef({ active: false, progress: 0, toLight: theme === 'light' })
   const isFirstMountRef = useRef(true)
+  const wakeRenderRef = useRef(() => {})
 
   useEffect(() => {
     themeRef.current = theme
@@ -184,6 +285,7 @@ export default function CosmicBackground({ theme, parallax }) {
       progress: 0,
       toLight: theme === 'light',
     }
+    wakeRenderRef.current()
   }, [theme])
 
   useEffect(() => {
@@ -195,15 +297,44 @@ export default function CosmicBackground({ theme, parallax }) {
     const prefersReduced =
       window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
 
+    let disposed = false
+    let initRafId = null
+    let rafId = null
     let width = window.innerWidth
     let height = window.innerHeight
-    let dpr = Math.min(window.devicePixelRatio || 1, 2)
+    let dpr = Math.min(window.devicePixelRatio || 1, width < 768 ? 1.5 : 2)
     let maxRadius = Math.hypot(width * 0.55, height * 0.55)
+
+    let stars = []
+    let starGlowSprites = []
+    let galaxyBgCanvas = null
+    let nebulae = []
+
+    let solarAssets = null
+    const ensureSolarAssets = () => {
+      if (solarAssets) return solarAssets
+      solarAssets = {
+        solarBgCanvas: createSolarBackdropCanvas(256),
+        heroCushionCanvas: createHeroCushionCanvas(128),
+        solarSprites: {
+          whiteGold: createGaussianGlowSprite(255, 251, 230, 128),
+          gold: createGaussianGlowSprite(251, 191, 36, 128),
+          amber: createGaussianGlowSprite(249, 115, 22, 128),
+          flareOrange: createGaussianGlowSprite(234, 88, 12, 128),
+          crimsonGlow: createGaussianGlowSprite(220, 68, 38, 128),
+        },
+        solarHalos: createSolarHalos(),
+        solarStormPlumes: createSolarStormPlumes(),
+        solarProminences: createSolarProminences(),
+        solarWindParticles: createSolarWindParticles(width, height, maxRadius),
+      }
+      return solarAssets
+    }
 
     const setSize = () => {
       width = window.innerWidth
       height = window.innerHeight
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      dpr = Math.min(window.devicePixelRatio || 1, width < 768 ? 1.5 : 2)
       maxRadius = Math.hypot(width * 0.55, height * 0.55)
       canvas.width = Math.floor(width * dpr)
       canvas.height = Math.floor(height * dpr)
@@ -212,67 +343,26 @@ export default function CosmicBackground({ theme, parallax }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     }
 
-    setSize()
-
-    let stars = createStars(width, height)
-    let solarWindParticles = createSolarWindParticles(maxRadius)
-    const solarSprites = {
-      whiteGold: createGaussianGlowSprite(255, 251, 230, 256),
-      gold: createGaussianGlowSprite(251, 191, 36, 256),
-      amber: createGaussianGlowSprite(249, 115, 22, 256),
-      flareOrange: createGaussianGlowSprite(234, 88, 12, 256),
-      crimsonGlow: createGaussianGlowSprite(220, 68, 38, 256),
-    }
-    const solarHalos = createSolarHalos()
-    const solarStormPlumes = createSolarStormPlumes()
-    const solarProminences = createSolarProminences()
-    const nebulae = createNebulae()
     const shootingStars = []
     let nextShootAt = performance.now() + 2600 + Math.random() * 2500
-
     let blend = themeRef.current === 'light' ? 1 : 0
     let lastTime = performance.now()
-    let rafId = null
-
-    const onResize = () => {
-      setSize()
-      stars = createStars(width, height)
-      solarWindParticles = createSolarWindParticles(maxRadius)
-    }
-    window.addEventListener('resize', onResize)
+    let lastDraw = 0
 
     const drawGalaxy = (dt, t, px, py, opacity) => {
       ctx.save()
       ctx.globalAlpha = opacity
 
-      // Deep space backdrop
-      const bgGrad = ctx.createRadialGradient(
-        width * 0.5 + px * 16,
-        height * 0.45 + py * 16,
-        width * 0.05,
-        width * 0.5,
-        height * 0.5,
-        maxRadius * 1.15
-      )
-      bgGrad.addColorStop(0, '#090f22')
-      bgGrad.addColorStop(0.55, '#050814')
-      bgGrad.addColorStop(1, '#020308')
-      ctx.fillStyle = bgGrad
-      ctx.fillRect(0, 0, width, height)
+      // Pre-rendered deep space backdrop
+      ctx.drawImage(galaxyBgCanvas, -24 + px * 16, -24 + py * 16, width + 48, height + 48)
 
-      // Drifting soft nebulae
+      // Drifting soft nebulae using pre-rendered sprites
+      const minDim = Math.min(width, height)
       for (const neb of nebulae) {
         const nx = width * neb.rx + Math.sin(t * 0.14 + neb.phase) * 28 + px * 14
         const ny = height * neb.ry + Math.cos(t * 0.12 + neb.phase) * 22 + py * 14
-        const rad = Math.min(width, height) * neb.radiusFactor
-        const g = ctx.createRadialGradient(nx, ny, 0, nx, ny, rad)
-        g.addColorStop(0, `rgba(${neb.color}, ${neb.alpha})`)
-        g.addColorStop(0.55, `rgba(${neb.color}, ${neb.alpha * 0.35})`)
-        g.addColorStop(1, `rgba(${neb.color}, 0)`)
-        ctx.fillStyle = g
-        ctx.beginPath()
-        ctx.arc(nx, ny, rad, 0, Math.PI * 2)
-        ctx.fill()
+        const rad = minDim * neb.radiusFactor
+        ctx.drawImage(neb.sprite, nx - rad, ny - rad, rad * 2, rad * 2)
       }
 
       // 3-layer twinkling parallax starfield
@@ -294,13 +384,10 @@ export default function CosmicBackground({ theme, parallax }) {
         const alpha = Math.min(1, s.baseAlpha * twinkle)
 
         if (s.depth >= 0.5) {
-          const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, s.size * 4.2)
-          glow.addColorStop(0, `rgba(${s.color}, ${alpha * 0.65})`)
-          glow.addColorStop(1, `rgba(${s.color}, 0)`)
-          ctx.fillStyle = glow
-          ctx.beginPath()
-          ctx.arc(sx, sy, s.size * 4.2, 0, Math.PI * 2)
-          ctx.fill()
+          const glowR = s.size * 4.2
+          ctx.globalAlpha = opacity * alpha
+          ctx.drawImage(starGlowSprites[s.colorIdx], sx - glowR, sy - glowR, glowR * 2, glowR * 2)
+          ctx.globalAlpha = opacity
         }
 
         ctx.fillStyle = `rgba(${s.color}, ${alpha})`
@@ -379,6 +466,17 @@ export default function CosmicBackground({ theme, parallax }) {
     }
 
     const drawSun = (dt, t, px, py, opacity) => {
+      const assets = ensureSolarAssets()
+      const {
+        solarBgCanvas,
+        heroCushionCanvas,
+        solarSprites,
+        solarHalos,
+        solarStormPlumes,
+        solarProminences,
+        solarWindParticles,
+      } = assets
+
       ctx.save()
       ctx.globalAlpha = opacity
 
@@ -396,15 +494,8 @@ export default function CosmicBackground({ theme, parallax }) {
         ctx.restore()
       }
 
-      // 1. Warm luminous solar atmosphere backdrop
-      const bgGrad = ctx.createRadialGradient(cx, cy, 12, cx, cy, maxRadius * 1.15)
-      bgGrad.addColorStop(0, '#fffef7')
-      bgGrad.addColorStop(0.24, '#fff7e0')
-      bgGrad.addColorStop(0.52, '#ffecd1')
-      bgGrad.addColorStop(0.78, '#fde0be')
-      bgGrad.addColorStop(1, '#f8d5b0')
-      ctx.fillStyle = bgGrad
-      ctx.fillRect(0, 0, width, height)
+      // 1. Pre-rendered luminous solar atmosphere backdrop
+      ctx.drawImage(solarBgCanvas, -24 + px * 14, -24 + py * 14, width + 48, height + 48)
 
       // 2. Diffuse asymmetric solar halos (overlapping Gaussian layers, no geometric borders)
       for (const halo of solarHalos) {
@@ -553,11 +644,8 @@ export default function CosmicBackground({ theme, parallax }) {
         const tailLen = (6 + normR * 17) * p.depth
         const tx = x - Math.cos(tangentAngle) * tailLen
         const ty = y - Math.sin(tangentAngle) * tailLen
-        const trailGrad = ctx.createLinearGradient(x, y, tx, ty)
-        trailGrad.addColorStop(0, `rgba(${p.color}, ${particleAlpha * 0.58})`)
-        trailGrad.addColorStop(1, `rgba(${p.color}, 0)`)
 
-        ctx.strokeStyle = trailGrad
+        ctx.strokeStyle = `rgba(${p.color}, ${(particleAlpha * 0.42).toFixed(3)})`
         ctx.lineWidth = Math.max(0.8, p.size * 0.58 * perspectiveScale)
         ctx.beginPath()
         ctx.moveTo(x, y)
@@ -571,23 +659,15 @@ export default function CosmicBackground({ theme, parallax }) {
         ctx.fill()
       }
 
-      // 7. Soft warm solar readability cushion directly behind central Hero typography
+      // 7. Pre-rendered warm solar readability cushion directly behind central Hero typography
       const cushionRadius = minDim * 0.29
-      const heroCushion = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.5,
-        0,
-        width * 0.5,
-        height * 0.5,
-        cushionRadius
+      ctx.drawImage(
+        heroCushionCanvas,
+        width * 0.5 - cushionRadius,
+        height * 0.5 - cushionRadius,
+        cushionRadius * 2,
+        cushionRadius * 2
       )
-      heroCushion.addColorStop(0, 'rgba(255, 253, 245, 0.78)')
-      heroCushion.addColorStop(0.65, 'rgba(255, 248, 228, 0.30)')
-      heroCushion.addColorStop(1, 'rgba(255, 246, 220, 0)')
-      ctx.fillStyle = heroCushion
-      ctx.beginPath()
-      ctx.arc(width * 0.5, height * 0.5, cushionRadius, 0, Math.PI * 2)
-      ctx.fill()
 
       ctx.restore()
     }
@@ -631,6 +711,17 @@ export default function CosmicBackground({ theme, parallax }) {
     }
 
     const render = (now) => {
+      if (disposed || document.hidden) {
+        rafId = null
+        return
+      }
+
+      if (width < 768 && !shockwaveRef.current.active && now - lastDraw < 32) {
+        rafId = requestAnimationFrame(render)
+        return
+      }
+      lastDraw = now
+
       const dt = Math.min(0.05, (now - lastTime) * 0.001)
       lastTime = now
       const t = now * 0.001
@@ -652,14 +743,65 @@ export default function CosmicBackground({ theme, parallax }) {
 
       drawShockwave(dt)
 
+      if (prefersReduced && blend === targetBlend && !shockwaveRef.current.active) {
+        rafId = null
+        return
+      }
+
       rafId = requestAnimationFrame(render)
     }
 
-    rafId = requestAnimationFrame(render)
+    const startLoop = () => {
+      if (disposed || document.hidden || rafId !== null) return
+      lastTime = performance.now()
+      rafId = requestAnimationFrame(render)
+    }
+
+    const onResize = () => {
+      setSize()
+      stars = createStars(width, height)
+      if (solarAssets) {
+        solarAssets.solarWindParticles = createSolarWindParticles(width, height, maxRadius)
+      }
+      startLoop()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId)
+          rafId = null
+        }
+      } else {
+        startLoop()
+      }
+    }
+
+    initRafId = requestAnimationFrame(() => {
+      if (disposed) return
+      setSize()
+      stars = createStars(width, height)
+      starGlowSprites = GALAXY_COLORS.map((rgb) => createStarGlowSprite(rgb, 32))
+      galaxyBgCanvas = createGalaxyBackdropCanvas(256)
+      nebulae = createNebulae().map((neb) => ({
+        ...neb,
+        sprite: createNebulaSprite(neb.color, neb.alpha, 256),
+      }))
+      if (themeRef.current === 'light') {
+        ensureSolarAssets()
+      }
+      wakeRenderRef.current = startLoop
+      window.addEventListener('resize', onResize)
+      document.addEventListener('visibilitychange', onVisibilityChange)
+      startLoop()
+    })
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId)
+      disposed = true
+      if (initRafId !== null) cancelAnimationFrame(initRafId)
+      if (rafId !== null) cancelAnimationFrame(rafId)
       window.removeEventListener('resize', onResize)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [parallax])
 

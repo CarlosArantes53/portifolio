@@ -1,7 +1,18 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   base: '/portifolio/',
-  plugins: [react()],
+  oxc: {
+    jsx: {
+      runtime: 'automatic',
+      importSource: 'preact',
+    },
+  },
+  build: {
+    target: 'es2020',
+    cssMinify: true,
+    modulePreload: {
+      polyfill: false,
+    },
+  },
 })

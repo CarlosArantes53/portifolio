@@ -66,6 +66,7 @@ export default function ThemeSwitch({ theme, onToggle }) {
           </span>
         ) : (
           <svg
+            aria-hidden="true"
             width="15"
             height="15"
             viewBox="0 0 24 24"

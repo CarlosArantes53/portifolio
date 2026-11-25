@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'preact/hooks'
 import {
   ABOUT_PARAGRAPHS,
   CONTACT_LINKS,
@@ -21,19 +21,39 @@ const TABS = [
 export default function SectionModal({ activeSection, onSelectSection, onClose, theme }) {
   const [category, setCategory] = useState('Todos')
   const [copied, setCopied] = useState(false)
+  const closeButtonRef = useRef(null)
+  const previousFocusRef = useRef(null)
+  const copyTimerRef = useRef(null)
 
   useEffect(() => {
     if (!activeSection) return
+    previousFocusRef.current = document.activeElement
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeButtonRef.current?.focus()
+
     const onKeyDown = (e) => {
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = prevOverflow
+      if (previousFocusRef.current && typeof previousFocusRef.current.focus === 'function') {
+        previousFocusRef.current.focus()
+      }
+    }
   }, [activeSection, onClose])
 
   useEffect(() => {
     setCategory('Todos')
   }, [activeSection])
+
+  useEffect(() => {
+    return () => {
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+    }
+  }, [])
 
   if (!activeSection) return null
 
@@ -43,7 +63,8 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
     try {
       await navigator.clipboard.writeText(PROFILE.email)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2200)
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current)
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2200)
     } catch {
       window.location.href = `mailto:${PROFILE.email}`
     }
@@ -60,7 +81,7 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
       <div
         onClick={onClose}
         className={`fixed inset-0 backdrop-blur-md transition-opacity ${
-          isDark ? 'bg-black/65' : 'bg-stone-950/30'
+          isDark ? 'bg-black/65' : 'bg-orange-950/35'
         }`}
       />
 
@@ -68,32 +89,34 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
       <div
         className={`animate-panel-enter relative z-10 flex max-h-[86vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border backdrop-blur-2xl ${
           isDark
-            ? 'bg-[#090e1c]/88 border-white/15 text-slate-100 shadow-[0_32px_90px_rgba(0,0,0,0.8)]'
-            : 'bg-[#fffdf8]/92 border-amber-900/12 text-stone-900 shadow-[0_32px_90px_rgba(120,53,15,0.18)]'
+            ? 'bg-[#090e1c]/90 border-white/15 text-slate-100 shadow-[0_32px_90px_rgba(0,0,0,0.8)]'
+            : 'bg-gradient-to-br from-[#ffedd5] via-[#ffe2bd] to-[#fed39f] border-orange-900/20 text-[#1c0f06] shadow-[0_32px_90px_rgba(124,45,18,0.28)]'
         }`}
       >
         {/* Top Bar with Tabs & Close */}
         <div
           className={`flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-7 ${
-            isDark ? 'border-white/10' : 'border-amber-900/10'
+            isDark ? 'border-white/10' : 'border-orange-900/15'
           }`}
         >
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div role="tablist" aria-label="Seções do portfólio" className="flex flex-wrap items-center gap-1.5">
             {TABS.map(({ id, label }) => {
               const active = activeSection === id
               return (
                 <button
                   key={id}
                   type="button"
+                  role="tab"
+                  aria-selected={active}
                   onClick={() => onSelectSection(id)}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-mono font-medium transition-all ${
                     active
                       ? isDark
                         ? 'bg-white text-slate-950 shadow-sm'
-                        : 'bg-stone-900 text-amber-50 shadow-sm'
+                        : 'bg-[#1c0f06] text-amber-50 shadow-sm font-semibold'
                       : isDark
                       ? 'text-slate-300 hover:bg-white/10 hover:text-white'
-                      : 'text-stone-600 hover:bg-amber-900/8 hover:text-stone-900'
+                      : 'text-[#4a2511] hover:bg-orange-950/10 hover:text-[#1c0f06]'
                   }`}
                 >
                   {label}
@@ -103,13 +126,14 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
           </div>
 
           <button
+            ref={closeButtonRef}
             type="button"
             onClick={onClose}
             aria-label="Fechar painel"
             className={`flex h-8 w-8 items-center justify-center rounded-full text-lg transition-colors ${
               isDark
                 ? 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white'
-                : 'bg-amber-900/8 text-stone-600 hover:bg-amber-900/15 hover:text-stone-900'
+                : 'bg-orange-950/10 text-[#3b1c0b] hover:bg-orange-950/20 hover:text-[#1c0f06]'
             }`}
           >
             ×
@@ -135,12 +159,14 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
 function SobreTab({ isDark }) {
   return (
     <div>
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-orange-800 font-semibold'}`}>
         {'// sobre mim'}
       </p>
-      <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Quem sou eu</h2>
+      <h2 className={`mt-1.5 font-display text-3xl font-bold sm:text-4xl ${isDark ? 'text-white' : 'text-[#1a0c04]'}`}>
+        Quem sou eu
+      </h2>
 
-      <div className={`mt-6 grid gap-5 text-sm leading-relaxed md:grid-cols-2 sm:text-base ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
+      <div className={`mt-6 grid gap-5 text-sm leading-relaxed md:grid-cols-2 sm:text-base ${isDark ? 'text-slate-300' : 'text-[#2c1508]'}`}>
         <div className="space-y-4">
           <p>{ABOUT_PARAGRAPHS[0]}</p>
           <p>{ABOUT_PARAGRAPHS[1]}</p>
@@ -152,8 +178,8 @@ function SobreTab({ isDark }) {
               href={COSMOSVIEW_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className={`font-semibold underline underline-offset-4 ${
-                isDark ? 'text-sky-300 hover:text-sky-200' : 'text-amber-700 hover:text-orange-600'
+              className={`underline underline-offset-4 ${
+                isDark ? 'font-semibold text-sky-300 hover:text-sky-200' : 'font-bold text-orange-800 hover:text-orange-950'
               }`}
             >
               CosmosView
@@ -172,13 +198,13 @@ function SobreTab({ isDark }) {
             className={`rounded-2xl border p-4 text-center ${
               isDark
                 ? 'border-white/10 bg-white/5'
-                : 'border-amber-900/10 bg-amber-500/[0.05]'
+                : 'border-orange-900/15 bg-[#fff7ec]/85 shadow-sm'
             }`}
           >
-            <p className={`font-display text-2xl font-bold ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+            <p className={`font-display text-2xl font-bold ${isDark ? 'text-sky-300' : 'text-orange-700'}`}>
               {value}
             </p>
-            <p className={`mt-1 text-xs font-mono ${isDark ? 'text-slate-400' : 'text-stone-500'}`}>
+            <p className={`mt-1 text-xs font-mono ${isDark ? 'text-slate-400' : 'text-[#4a2511] font-medium'}`}>
               {label}
             </p>
           </div>
@@ -196,10 +222,12 @@ function ProjetosTab({ isDark, category, setCategory }) {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-orange-800 font-semibold'}`}>
             {'// projetos'}
           </p>
-          <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">O que construí</h2>
+          <h2 className={`mt-1.5 font-display text-3xl font-bold sm:text-4xl ${isDark ? 'text-white' : 'text-[#1a0c04]'}`}>
+            O que construí
+          </h2>
         </div>
 
         {/* Category Filter Pills */}
@@ -210,15 +238,16 @@ function ProjetosTab({ isDark, category, setCategory }) {
               <button
                 key={cat}
                 type="button"
+                aria-pressed={active}
                 onClick={() => setCategory(cat)}
                 className={`rounded-full px-3 py-1 text-xs font-mono transition-all ${
                   active
                     ? isDark
                       ? 'bg-sky-300 text-slate-950 font-semibold'
-                      : 'bg-amber-600 text-white font-semibold'
+                      : 'bg-orange-700 text-white font-semibold shadow-sm'
                     : isDark
                     ? 'border border-white/15 text-slate-300 hover:bg-white/10'
-                    : 'border border-amber-900/12 text-stone-600 hover:bg-amber-900/5'
+                    : 'border border-orange-900/20 bg-[#fff7ec]/60 text-[#3b1c0b] hover:bg-[#fff7ec]'
                 }`}
               >
                 {cat}
@@ -235,12 +264,12 @@ function ProjetosTab({ isDark, category, setCategory }) {
             className={`flex flex-col justify-between gap-4 rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04] hover:border-sky-300/35'
-                : 'border-amber-900/10 bg-amber-50/50 hover:border-amber-600/40'
+                : 'border-orange-900/15 bg-[#fff7ec]/85 shadow-sm hover:border-orange-700/45 hover:bg-[#fffaf3]'
             }`}
           >
             <div>
               <div className="flex items-start justify-between gap-3">
-                <h3 className="font-display text-lg font-bold">{project.title}</h3>
+                <h3 className={`font-display text-lg font-bold ${isDark ? '' : 'text-[#1a0c04]'}`}>{project.title}</h3>
                 <div className="flex shrink-0 items-center gap-2">
                   {project.url && (
                     <a
@@ -251,7 +280,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                       className={`rounded-lg p-1.5 transition-colors ${
                         isDark
                           ? 'text-slate-400 hover:bg-white/10 hover:text-white'
-                          : 'text-stone-500 hover:bg-amber-900/8 hover:text-stone-900'
+                          : 'text-[#4a2511] hover:bg-orange-950/10 hover:text-[#1c0f06]'
                       }`}
                     >
                       <GithubIcon />
@@ -266,7 +295,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                       className={`rounded-lg p-1.5 transition-colors ${
                         isDark
                           ? 'text-sky-300 hover:bg-sky-300/15'
-                          : 'text-orange-600 hover:bg-orange-600/10'
+                          : 'text-orange-700 hover:bg-orange-700/15'
                       }`}
                     >
                       <ExternalIcon />
@@ -274,7 +303,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                   )}
                 </div>
               </div>
-              <p className={`mt-2 text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
+              <p className={`mt-2 text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-[#2c1508]'}`}>
                 {project.description}
               </p>
             </div>
@@ -286,7 +315,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-mono ${
                     isDark
                       ? 'border border-sky-300/25 bg-sky-300/10 text-sky-200'
-                      : 'border border-amber-600/25 bg-amber-500/10 text-amber-800'
+                      : 'border border-orange-700/25 bg-orange-500/15 text-orange-950 font-medium'
                   }`}
                 >
                   {tag}
@@ -302,8 +331,8 @@ function ProjetosTab({ isDark, category, setCategory }) {
           href="https://github.com/CarlosArantes53?tab=repositories"
           target="_blank"
           rel="noopener noreferrer"
-          className={`inline-flex items-center gap-1.5 font-mono text-sm font-medium hover:underline ${
-            isDark ? 'text-sky-300' : 'text-amber-700'
+          className={`inline-flex items-center gap-1.5 font-mono text-sm hover:underline ${
+            isDark ? 'font-medium text-sky-300' : 'font-semibold text-orange-800 hover:text-orange-950'
           }`}
         >
           Ver todos os repositórios no GitHub →
@@ -316,22 +345,24 @@ function ProjetosTab({ isDark, category, setCategory }) {
 function StackTab({ isDark }) {
   return (
     <div>
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-orange-800 font-semibold'}`}>
         {'// habilidades'}
       </p>
-      <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Stack técnico</h2>
+      <h2 className={`mt-1.5 font-display text-3xl font-bold sm:text-4xl ${isDark ? 'text-white' : 'text-[#1a0c04]'}`}>
+        Stack técnico
+      </h2>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         {SKILLS.map(({ name, level }) => (
           <div key={name}>
             <div className="mb-1 flex items-center justify-between text-xs font-mono">
-              <span className={isDark ? 'text-slate-200' : 'text-stone-700'}>{name}</span>
-              <span className={isDark ? 'text-sky-300' : 'text-amber-700'}>{level}%</span>
+              <span className={isDark ? 'text-slate-200' : 'text-[#1c0f06] font-semibold'}>{name}</span>
+              <span className={isDark ? 'text-sky-300' : 'text-orange-800 font-semibold'}>{level}%</span>
             </div>
-            <div className={`h-2 overflow-hidden rounded-full ${isDark ? 'bg-white/10' : 'bg-amber-950/10'}`}>
+            <div className={`h-2 overflow-hidden rounded-full ${isDark ? 'bg-white/10' : 'bg-orange-950/15'}`}>
               <div
                 className={`h-full rounded-full bg-gradient-to-r ${
-                  isDark ? 'from-indigo-500 to-sky-400' : 'from-orange-500 to-amber-400'
+                  isDark ? 'from-indigo-500 to-sky-400' : 'from-orange-600 to-amber-500'
                 }`}
                 style={{ width: `${level}%` }}
               />
@@ -347,10 +378,10 @@ function StackTab({ isDark }) {
             className={`rounded-2xl border p-5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04]'
-                : 'border-amber-900/10 bg-amber-50/55'
+                : 'border-orange-900/15 bg-[#fff7ec]/85 shadow-sm'
             }`}
           >
-            <h3 className={`font-display text-sm font-bold ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+            <h3 className={`font-display text-sm font-bold ${isDark ? 'text-sky-300' : 'text-orange-800'}`}>
               {title}
             </h3>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -360,7 +391,7 @@ function StackTab({ isDark }) {
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-mono ${
                     isDark
                       ? 'border border-white/15 bg-white/5 text-slate-200'
-                      : 'border border-amber-900/10 bg-white text-stone-700'
+                      : 'border border-orange-900/15 bg-[#ffedd5]/80 text-[#2c1508] font-medium'
                   }`}
                 >
                   {item}
@@ -377,11 +408,13 @@ function StackTab({ isDark }) {
 function ContatoTab({ isDark, copied, onCopyEmail }) {
   return (
     <div className="text-center">
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-orange-800 font-semibold'}`}>
         {'// contato'}
       </p>
-      <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Vamos conversar</h2>
-      <p className={`mx-auto mt-2 max-w-md text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
+      <h2 className={`mt-1.5 font-display text-3xl font-bold sm:text-4xl ${isDark ? 'text-white' : 'text-[#1a0c04]'}`}>
+        Vamos conversar
+      </h2>
+      <p className={`mx-auto mt-2 max-w-md text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-[#2c1508]'}`}>
         Aberto a oportunidades, colaborações e projetos interessantes. Entre em contato por qualquer canal abaixo.
       </p>
 
@@ -394,7 +427,7 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
               ? 'bg-emerald-500 text-white'
               : isDark
               ? 'bg-white text-slate-950 hover:bg-sky-200'
-              : 'bg-stone-900 text-amber-50 hover:bg-amber-700'
+              : 'bg-[#1c0f06] text-amber-50 hover:bg-orange-800 shadow-sm'
           }`}
         >
           <span>{copied ? 'Copiado!' : `Copiar e-mail (${PROFILE.email})`}</span>
@@ -411,14 +444,14 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
             className={`group flex flex-col items-center gap-2.5 rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04] hover:border-sky-300/40'
-                : 'border-amber-900/10 bg-amber-50/55 hover:border-amber-600/40'
+                : 'border-orange-900/15 bg-[#fff7ec]/85 shadow-sm hover:border-orange-700/45 hover:bg-[#fffaf3]'
             }`}
           >
-            <span className={isDark ? 'text-sky-300' : 'text-orange-600'}>
+            <span className={isDark ? 'text-sky-300' : 'text-orange-700'}>
               <ContactIcon id={id} />
             </span>
-            <span className="font-display text-sm font-bold">{label}</span>
-            <span className={`text-[11px] font-mono break-all ${isDark ? 'text-slate-400' : 'text-stone-500'}`}>
+            <span className={`font-display text-sm font-bold ${isDark ? '' : 'text-[#1a0c04]'}`}>{label}</span>
+            <span className={`text-[11px] font-mono break-all ${isDark ? 'text-slate-400' : 'text-[#4a2511]'}`}>
               {description}
             </span>
           </a>
@@ -427,11 +460,11 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
 
       <div
         className={`mt-8 flex flex-col items-center justify-between gap-2 border-t pt-5 text-xs font-mono sm:flex-row ${
-          isDark ? 'border-white/10 text-slate-400' : 'border-amber-900/10 text-stone-500'
+          isDark ? 'border-white/10 text-slate-400' : 'border-orange-900/15 text-[#4a2511]'
         }`}
       >
         <span>© 2026 {PROFILE.fullName}</span>
-        <span>React + Vite</span>
+        <span>Preact + Vite</span>
       </div>
     </div>
   )
@@ -441,20 +474,20 @@ function ContactIcon({ id }) {
   if (id === 'github') return <GithubIcon size={22} />
   if (id === 'linkedin') {
     return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
         <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
       </svg>
     )
   }
   if (id === 'lattes') {
     return (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
       </svg>
     )
   }
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <rect x="2" y="4" width="20" height="16" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
@@ -463,7 +496,7 @@ function ContactIcon({ id }) {
 
 function GithubIcon({ size = 18 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
       <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
     </svg>
   )
@@ -471,7 +504,7 @@ function GithubIcon({ size = 18 }) {
 
 function ExternalIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
     </svg>
   )

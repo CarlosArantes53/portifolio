@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'preact/hooks'
 
 export default function SpaceCursorBadge({ theme, hidden }) {
   const badgeRef = useRef(null)
@@ -8,6 +8,18 @@ export default function SpaceCursorBadge({ theme, hidden }) {
   const currentRef = useRef({ x: -200, y: -200 })
   const overInteractiveRef = useRef(false)
   const insideRef = useRef(false)
+  const hiddenRef = useRef(hidden)
+  const startAnimRef = useRef(() => {})
+
+  useEffect(() => {
+    hiddenRef.current = hidden
+    if (hidden) {
+      setVisible(false)
+    } else if (insideRef.current && !overInteractiveRef.current) {
+      setVisible(true)
+      startAnimRef.current()
+    }
+  }, [hidden])
 
   useEffect(() => {
     const finePointer = window.matchMedia?.('(pointer: fine)')?.matches
@@ -15,48 +27,80 @@ export default function SpaceCursorBadge({ theme, hidden }) {
     if (!finePointer || reducedMotion) return
     setEnabled(true)
 
+    let rafId = null
+
+    const stopAnimate = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+        rafId = null
+      }
+    }
+
+    const animate = () => {
+      if (hiddenRef.current || document.hidden || !insideRef.current) {
+        rafId = null
+        return
+      }
+      const dx = pointerRef.current.x - currentRef.current.x
+      const dy = pointerRef.current.y - currentRef.current.y
+      currentRef.current.x += dx * 0.18
+      currentRef.current.y += dy * 0.18
+
+      if (badgeRef.current) {
+        badgeRef.current.style.transform = `translate3d(${(currentRef.current.x + 18).toFixed(1)}px, ${(
+          currentRef.current.y + 18
+        ).toFixed(1)}px, 0)`
+      }
+
+      if (Math.abs(dx) < 0.25 && Math.abs(dy) < 0.25) {
+        rafId = null
+        return
+      }
+      rafId = requestAnimationFrame(animate)
+    }
+
+    const startAnimate = () => {
+      if (rafId === null && !hiddenRef.current && !document.hidden && insideRef.current) {
+        rafId = requestAnimationFrame(animate)
+      }
+    }
+    startAnimRef.current = startAnimate
+
     const onMove = (e) => {
       pointerRef.current = { x: e.clientX, y: e.clientY }
+      if (!insideRef.current) {
+        currentRef.current = { x: e.clientX, y: e.clientY }
+      }
       insideRef.current = true
       const interactive = e.target?.closest?.(
         'button, a, input, textarea, [role="button"], [role="switch"]'
       )
       overInteractiveRef.current = Boolean(interactive)
-      setVisible(!overInteractiveRef.current && !hidden)
+      setVisible(!overInteractiveRef.current && !hiddenRef.current)
+      startAnimate()
     }
 
     const onLeave = () => {
       insideRef.current = false
       setVisible(false)
+      stopAnimate()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.hidden) stopAnimate()
     }
 
     window.addEventListener('pointermove', onMove, { passive: true })
     document.addEventListener('mouseleave', onLeave)
-
-    let rafId = null
-    const animate = () => {
-      currentRef.current.x += (pointerRef.current.x - currentRef.current.x) * 0.18
-      currentRef.current.y += (pointerRef.current.y - currentRef.current.y) * 0.18
-      if (badgeRef.current) {
-        badgeRef.current.style.transform = `translate3d(${currentRef.current.x + 18}px, ${
-          currentRef.current.y + 18
-        }px, 0)`
-      }
-      rafId = requestAnimationFrame(animate)
-    }
-    rafId = requestAnimationFrame(animate)
+    document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId)
+      stopAnimate()
       window.removeEventListener('pointermove', onMove)
       document.removeEventListener('mouseleave', onLeave)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
-  }, [hidden])
-
-  useEffect(() => {
-    if (hidden) setVisible(false)
-    else if (insideRef.current && !overInteractiveRef.current) setVisible(true)
-  }, [hidden])
+  }, [])
 
   if (!enabled) return null
 

@@ -1,18 +1,4 @@
-export const PROFILE = {
-  name: 'Carlos Eduardo',
-  fullName: 'Carlos Eduardo de Paula Arantes',
-  initials: 'CA',
-  role: 'Software Developer & Computer Vision Engineer',
-  tagline:
-    'Desenvolvedor de Software & Engenheiro de Visão Computacional. Explore meus projetos em IA, WebGL, Libras e automação 3D.',
-  notePhrases: [
-    'Visão Computacional & IA',
-    'Acessibilidade em Libras',
-    'WebGL, Three.js & NASA API',
-    'Automação 3D com Blender',
-  ],
-  email: 'carlos.arantes05@gmail.com',
-}
+export { PROFILE } from './profileData'
 
 export const ABOUT_PARAGRAPHS = [
   'Sou um desenvolvedor de software apaixonado por Visão Computacional e Inteligência Artificial. Trabalho com Python e JavaScript para construir soluções que vão de reconhecimento de linguagem de sinais com MediaPipe a blogs astronômicos com Three.js e NASA API.',
@@ -132,7 +118,7 @@ export const CONTACT_LINKS = [
   {
     id: 'lattes',
     label: 'Lattes',
-    href: 'http://lattes.cnpq.br/2955071584883186',
+    href: 'https://lattes.cnpq.br/2955071584883186',
     description: 'Currículo acadêmico',
     handle: 'CNPq Lattes',
   },

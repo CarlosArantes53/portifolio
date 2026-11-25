@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { PROFILE } from '../data/portfolioData'
+import { useEffect, useRef, useState } from 'preact/hooks'
+import { PROFILE } from '../data/profileData'
 
 function CursorPill({ label, color, className }) {
   return (
@@ -26,12 +26,26 @@ function CursorPill({ label, color, className }) {
   )
 }
 
-function TypewriterNote() {
+function TypewriterNote({ active = false }) {
   const [phraseIdx, setPhraseIdx] = useState(0)
-  const [text, setText] = useState('')
+  const [text, setText] = useState(() => PROFILE.notePhrases[0])
   const [deleting, setDeleting] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
+    const onVisibilityChange = () => {
+      setIsVisible(!document.hidden)
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [])
+
+  useEffect(() => {
+    if (!active || !isVisible) return
+    const prefersReduced =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
+    if (prefersReduced) return
+
     const current = PROFILE.notePhrases[phraseIdx]
     let timer
 
@@ -49,7 +63,7 @@ function TypewriterNote() {
     }
 
     return () => clearTimeout(timer)
-  }, [text, deleting, phraseIdx])
+  }, [active, isVisible, text, deleting, phraseIdx])
 
   return (
     <span className="inline-flex items-center min-h-[1.25rem]">
@@ -59,7 +73,7 @@ function TypewriterNote() {
   )
 }
 
-function SobreArtifactCard({ theme }) {
+function SobreArtifactCard({ theme, typewriterActive }) {
   const isLight = theme === 'light'
   return (
     <div
@@ -69,40 +83,41 @@ function SobreArtifactCard({ theme }) {
           : 'bg-[#f05a37] text-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.55)] ring-1 ring-white/20'
       }`}
     >
-      <div className="mb-2.5 flex items-center justify-between text-[10px] font-mono text-slate-950/70">
+      <div className="mb-2.5 flex items-center justify-between text-[10px] font-mono text-slate-950">
         <div className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-slate-950/30" />
-          <span className="h-2 w-2 rounded-full bg-slate-950/20" />
+          <span className="h-2 w-2 rounded-full bg-slate-950/35" />
+          <span className="h-2 w-2 rounded-full bg-slate-950/25" />
           <span className="ml-1 font-medium">sobre.md</span>
         </div>
-        <span className="rounded bg-black/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider">
+        <span className="rounded bg-white/25 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-950">
           Perfil
         </span>
       </div>
 
-      <h3 className="font-display text-lg font-bold leading-tight text-slate-950 xl:text-xl">
+      <h2 className="font-display text-lg font-bold leading-tight text-slate-950 xl:text-xl">
         Notas do dev:
-      </h3>
-      <p className="mt-1 text-xs font-semibold text-slate-950/85">
-        <TypewriterNote />
+      </h2>
+      <p className="mt-1 text-xs font-semibold text-slate-950">
+        <TypewriterNote active={typewriterActive} />
       </p>
 
       <div className="mt-3.5 flex flex-wrap gap-1.5">
-        <span className="rounded-full bg-slate-950/12 px-2 py-0.5 text-[10px] font-mono font-medium text-slate-950">
+        <span className="rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-mono font-medium text-slate-950">
           22+ repos
         </span>
-        <span className="rounded-full bg-slate-950/12 px-2 py-0.5 text-[10px] font-mono font-medium text-slate-950">
+        <span className="rounded-full bg-white/25 px-2 py-0.5 text-[10px] font-mono font-medium text-slate-950">
           CV &amp; AI
         </span>
       </div>
 
-      <CursorPill label="Carlos" color="#0284c7" className="bottom-4 right-5 animate-patrol-1" />
+      <CursorPill label="Carlos" color="#0369a1" className="bottom-4 right-5 animate-patrol-1" />
     </div>
   )
 }
 
-function ProjetosArtifactCard({ theme }) {
+function ProjetosArtifactCard({ theme, idSuffix = 'desktop' }) {
   const isLight = theme === 'light'
+  const gradId = `planetGrad-${idSuffix}`
   return (
     <div
       className={`relative overflow-hidden rounded-2xl bg-white p-3.5 text-left text-slate-900 transition-shadow duration-300 ${
@@ -115,12 +130,12 @@ function ProjetosArtifactCard({ theme }) {
         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase tracking-wider text-amber-800">
           Projetos • 06
         </span>
-        <span className="text-[10px] font-mono text-slate-400">SPA / IA</span>
+        <span className="text-[10px] font-mono text-slate-600">SPA / IA</span>
       </div>
 
-      <h3 className="font-display text-sm font-bold leading-snug text-slate-900 xl:text-base">
+      <h2 className="font-display text-sm font-bold leading-snug text-slate-900 xl:text-base">
         CosmosView — NASA_MBA
-      </h3>
+      </h2>
 
       {/* Miniature cosmic banner */}
       <div className="relative my-2.5 h-16 w-full overflow-hidden rounded-xl bg-gradient-to-br from-[#090d24] via-[#1a1f4d] to-[#0c4a6e]">
@@ -131,13 +146,13 @@ function ProjetosArtifactCard({ theme }) {
           <circle cx="195" cy="50" r="1" fill="#fff" opacity="0.7" />
           <circle cx="96" cy="15" r="0.8" fill="#fff" opacity="0.6" />
           <defs>
-            <radialGradient id="planetGrad" cx="35%" cy="35%" r="70%">
+            <radialGradient id={gradId} cx="35%" cy="35%" r="70%">
               <stop offset="0%" stopColor="#7dd3fc" />
               <stop offset="55%" stopColor="#4f46e5" />
               <stop offset="100%" stopColor="#1e1b4b" />
             </radialGradient>
           </defs>
-          <circle cx="116" cy="37" r="18" fill="url(#planetGrad)" />
+          <circle cx="116" cy="37" r="18" fill={`url(#${gradId})`} />
           <ellipse
             cx="116"
             cy="37"
@@ -163,7 +178,7 @@ function ProjetosArtifactCard({ theme }) {
         </div>
       </div>
 
-      <CursorPill label="6 projetos" color="#d97706" className="top-12 right-4 animate-patrol-2" />
+      <CursorPill label="6 projetos" color="#b45309" className="top-12 right-4 animate-patrol-2" />
     </div>
   )
 }
@@ -192,7 +207,7 @@ function StackArtifactCard({ theme }) {
           <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
           <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
         </div>
-        <span className="text-[10px] font-mono font-medium text-slate-500">stack.dev</span>
+        <span className="text-[10px] font-mono font-medium text-slate-600">stack.dev</span>
       </div>
 
       <div className="p-3.5">
@@ -225,7 +240,7 @@ function StackArtifactCard({ theme }) {
         </div>
       </div>
 
-      <CursorPill label="Python 95%" color="#059669" className="bottom-8 right-5 animate-patrol-3" />
+      <CursorPill label="Python 95%" color="#047857" className="bottom-8 right-5 animate-patrol-3" />
     </div>
   )
 }
@@ -326,27 +341,56 @@ const ARTIFACT_SLOTS = [
   },
 ]
 
-function DesktopOrbitalSlot({ slot, parallax, theme, onSelectSection, isDimmed }) {
+function DesktopOrbitalSlot({
+  slot,
+  parallax,
+  theme,
+  onSelectSection,
+  onPreloadModal,
+  isDimmed,
+  typewriterActive,
+}) {
   const parallaxRef = useRef(null)
 
   useEffect(() => {
     const prefersReduced =
       window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
+    const mqDesktop = window.matchMedia?.('(min-width: 1024px)')
+    let unsubscribe = null
 
-    return parallax.subscribe((px, py) => {
-      if (!parallaxRef.current) return
-      if (prefersReduced) {
-        parallaxRef.current.style.transform = 'none'
-        return
+    const syncSubscription = () => {
+      const isDesktop = mqDesktop ? mqDesktop.matches : true
+      if (isDesktop && !prefersReduced) {
+        if (!unsubscribe) {
+          unsubscribe = parallax.subscribe((px, py) => {
+            if (!parallaxRef.current) return
+            const dx = px * slot.depth * 18
+            const dy = py * slot.depth * 14
+            const rx = -py * 4.5
+            const ry = px * 5.5
+            parallaxRef.current.style.transform = `perspective(900px) translate3d(${dx.toFixed(
+              2
+            )}px, ${dy.toFixed(2)}px, 0) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`
+          })
+        }
+      } else {
+        if (unsubscribe) {
+          unsubscribe()
+          unsubscribe = null
+        }
+        if (parallaxRef.current) {
+          parallaxRef.current.style.transform = 'none'
+        }
       }
-      const dx = px * slot.depth * 18
-      const dy = py * slot.depth * 14
-      const rx = -py * 4.5
-      const ry = px * 5.5
-      parallaxRef.current.style.transform = `perspective(900px) translate3d(${dx.toFixed(
-        2
-      )}px, ${dy.toFixed(2)}px, 0) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`
-    })
+    }
+
+    syncSubscription()
+    mqDesktop?.addEventListener?.('change', syncSubscription)
+
+    return () => {
+      mqDesktop?.removeEventListener?.('change', syncSubscription)
+      if (unsubscribe) unsubscribe()
+    }
   }, [parallax, slot.depth])
 
   const { Card } = slot
@@ -362,11 +406,13 @@ function DesktopOrbitalSlot({ slot, parallax, theme, onSelectSection, isDimmed }
           <button
             type="button"
             onClick={() => onSelectSection(slot.id)}
+            onPointerEnter={onPreloadModal}
+            onFocus={onPreloadModal}
             aria-label={slot.ariaLabel}
             style={{ transform: `rotate(${slot.tilt}deg)` }}
             className="block w-full rounded-2xl transition-transform duration-300 ease-out hover:scale-[1.05] hover:!rotate-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
-            <Card theme={theme} />
+            <Card theme={theme} idSuffix="desktop" typewriterActive={typewriterActive} />
           </button>
         </div>
       </div>
@@ -374,7 +420,23 @@ function DesktopOrbitalSlot({ slot, parallax, theme, onSelectSection, isDimmed }
   )
 }
 
-export default function OrbitalCards({ parallax, theme, onSelectSection, isDimmed }) {
+export default function OrbitalCards({
+  parallax,
+  theme,
+  onSelectSection,
+  onPreloadModal,
+  isDimmed,
+}) {
+  const [isDesktop, setIsDesktop] = useState(null)
+
+  useEffect(() => {
+    const mqDesktop = window.matchMedia?.('(min-width: 1024px)')
+    const sync = () => setIsDesktop(mqDesktop ? mqDesktop.matches : true)
+    sync()
+    mqDesktop?.addEventListener?.('change', sync)
+    return () => mqDesktop?.removeEventListener?.('change', sync)
+  }, [])
+
   return (
     <>
       {/* Desktop Quadrant Orbital Cards */}
@@ -385,7 +447,9 @@ export default function OrbitalCards({ parallax, theme, onSelectSection, isDimme
           parallax={parallax}
           theme={theme}
           onSelectSection={onSelectSection}
+          onPreloadModal={onPreloadModal}
           isDimmed={isDimmed}
+          typewriterActive={isDesktop === true}
         />
       ))}
 
@@ -396,10 +460,12 @@ export default function OrbitalCards({ parallax, theme, onSelectSection, isDimme
             key={id}
             type="button"
             onClick={() => onSelectSection(id)}
+            onPointerEnter={onPreloadModal}
+            onFocus={onPreloadModal}
             aria-label={ariaLabel}
             className="block w-full rounded-2xl transition-transform duration-200 active:scale-[0.98] hover:-translate-y-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
-            <Card theme={theme} />
+            <Card theme={theme} idSuffix="mobile" typewriterActive={isDesktop === false} />
           </button>
         ))}
       </div>

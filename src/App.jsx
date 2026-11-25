@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import CosmicBackground from './components/CosmicBackground'
 import OrbitalCards from './components/OrbitalCards'
-import SectionModal from './components/SectionModal'
 import SideRail from './components/SideRail'
 import SpaceCursorBadge from './components/SpaceCursorBadge'
 import ThemeSwitch from './components/ThemeSwitch'
-import { PROFILE } from './data/portfolioData'
+import { PROFILE } from './data/profileData'
 import useParallax from './hooks/useParallax'
 
 const THEME_STORAGE_KEY = 'portfolio-cosmic-theme'
 
 function getInitialTheme() {
+  if (typeof window === 'undefined') return 'dark'
   try {
     const saved = localStorage.getItem(THEME_STORAGE_KEY)
     if (saved === 'light' || saved === 'dark') return saved
@@ -23,13 +23,43 @@ function getInitialTheme() {
 export default function App() {
   const [theme, setTheme] = useState(getInitialTheme)
   const [activeSection, setActiveSection] = useState(null)
+  const [ModalComponent, setModalComponent] = useState(null)
+  const modalPromiseRef = useRef(null)
   const parallax = useParallax()
   const heroParallaxRef = useRef(null)
+
+  const preloadModal = useCallback(() => {
+    if (ModalComponent) return
+    if (!modalPromiseRef.current) {
+      modalPromiseRef.current = import('./components/SectionModal')
+        .then((mod) => {
+          setModalComponent(() => mod.default)
+          return mod.default
+        })
+        .catch(() => {
+          modalPromiseRef.current = null
+        })
+    }
+  }, [ModalComponent])
+
+  const openSection = useCallback(
+    (section) => {
+      setActiveSection(section)
+      if (section !== null) {
+        preloadModal()
+      }
+    },
+    [preloadModal]
+  )
 
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = theme
     root.classList.toggle('dark', theme === 'dark')
+    const themeMeta = document.querySelector('meta[name="theme-color"]')
+    if (themeMeta) {
+      themeMeta.setAttribute('content', theme === 'dark' ? '#04060c' : '#fff7e6')
+    }
     try {
       localStorage.setItem(THEME_STORAGE_KEY, theme)
     } catch {
@@ -40,17 +70,38 @@ export default function App() {
   useEffect(() => {
     const prefersReduced =
       window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false
+    const mqDesktop = window.matchMedia?.('(min-width: 1024px)')
+    let unsubscribe = null
 
-    return parallax.subscribe((px, py) => {
-      if (!heroParallaxRef.current) return
-      if (prefersReduced) {
-        heroParallaxRef.current.style.transform = 'none'
-        return
+    const syncSubscription = () => {
+      const isDesktop = mqDesktop ? mqDesktop.matches : true
+      if (isDesktop && !prefersReduced) {
+        if (!unsubscribe) {
+          unsubscribe = parallax.subscribe((px, py) => {
+            if (!heroParallaxRef.current) return
+            heroParallaxRef.current.style.transform = `translate3d(${(px * 6).toFixed(2)}px, ${(
+              py * 4
+            ).toFixed(2)}px, 0)`
+          })
+        }
+      } else {
+        if (unsubscribe) {
+          unsubscribe()
+          unsubscribe = null
+        }
+        if (heroParallaxRef.current) {
+          heroParallaxRef.current.style.transform = 'none'
+        }
       }
-      heroParallaxRef.current.style.transform = `translate3d(${(px * 6).toFixed(2)}px, ${(
-        py * 4
-      ).toFixed(2)}px, 0)`
-    })
+    }
+
+    syncSubscription()
+    mqDesktop?.addEventListener?.('change', syncSubscription)
+
+    return () => {
+      mqDesktop?.removeEventListener?.('change', syncSubscription)
+      if (unsubscribe) unsubscribe()
+    }
   }, [parallax])
 
   const toggleTheme = () => {
@@ -68,7 +119,12 @@ export default function App() {
     >
       <CosmicBackground theme={theme} parallax={parallax} />
 
-      <SideRail activeSection={activeSection} onSelect={setActiveSection} theme={theme} />
+      <SideRail
+        activeSection={activeSection}
+        onSelect={openSection}
+        onPreloadModal={preloadModal}
+        theme={theme}
+      />
 
       {/* Top-right 2-state cosmic switch */}
       <div className="fixed right-4 top-4 z-40 sm:right-6 sm:top-5">
@@ -122,7 +178,9 @@ export default function App() {
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              onClick={() => setActiveSection('projetos')}
+              onClick={() => openSection('projetos')}
+              onPointerEnter={preloadModal}
+              onFocus={preloadModal}
               className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${
                 isDark
                   ? 'bg-white text-slate-950 shadow-[0_0_28px_rgba(255,255,255,0.22)] hover:bg-sky-100'
@@ -134,7 +192,9 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setActiveSection('sobre')}
+              onClick={() => openSection('sobre')}
+              onPointerEnter={preloadModal}
+              onFocus={preloadModal}
               className={`rounded-full border px-5 py-2.5 text-sm font-medium backdrop-blur-md transition-all duration-200 hover:scale-[1.03] ${
                 isDark
                   ? 'border-white/20 bg-white/8 text-slate-100 hover:bg-white/15'
@@ -146,7 +206,9 @@ export default function App() {
 
             <button
               type="button"
-              onClick={() => setActiveSection('contato')}
+              onClick={() => openSection('contato')}
+              onPointerEnter={preloadModal}
+              onFocus={preloadModal}
               className={`rounded-full border px-5 py-2.5 text-sm font-medium backdrop-blur-md transition-all duration-200 hover:scale-[1.03] ${
                 isDark
                   ? 'border-white/20 bg-white/8 text-slate-100 hover:bg-white/15'
@@ -159,7 +221,7 @@ export default function App() {
 
           <p
             className={`mt-5 text-[11px] font-mono ${
-              isDark ? 'text-slate-400/80' : 'text-stone-600'
+              isDark ? 'text-slate-300/90' : 'text-stone-600'
             }`}
           >
             Clique em qualquer card ou navegue pelo menu
@@ -170,19 +232,22 @@ export default function App() {
         <OrbitalCards
           parallax={parallax}
           theme={theme}
-          onSelectSection={setActiveSection}
+          onSelectSection={openSection}
+          onPreloadModal={preloadModal}
           isDimmed={hasModal}
         />
       </main>
 
       <SpaceCursorBadge theme={theme} hidden={hasModal} />
 
-      <SectionModal
-        activeSection={activeSection}
-        onSelectSection={setActiveSection}
-        onClose={() => setActiveSection(null)}
-        theme={theme}
-      />
+      {hasModal && ModalComponent && (
+        <ModalComponent
+          activeSection={activeSection}
+          onSelectSection={openSection}
+          onClose={() => openSection(null)}
+          theme={theme}
+        />
+      )}
     </div>
   )
 }

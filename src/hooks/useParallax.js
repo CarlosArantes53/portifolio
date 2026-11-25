@@ -1,20 +1,67 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'preact/hooks'
 
 /**
  * Smooth 60fps pointer parallax engine with idle ambient drift.
- * Exposes coordsRef ({ x, y } in [-1, 1]) and a subscribe() callback registry
- * so canvas and DOM elements animate without triggering React re-renders.
+ * Runs its requestAnimationFrame loop only when at least one active
+ * subscriber is attached, the tab is visible, and reduced motion is off.
  */
 export default function useParallax() {
   const coordsRef = useRef({ x: 0, y: 0 })
   const targetRef = useRef({ x: 0, y: 0 })
   const subscribersRef = useRef(new Set())
   const lastPointerAtRef = useRef(0)
+  const loopControlRef = useRef({ start: () => {}, stop: () => {} })
 
   useEffect(() => {
     const prefersReduced =
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+
+    let rafId = null
+
+    const stopLoop = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+        rafId = null
+      }
+    }
+
+    const tick = (now) => {
+      if (subscribersRef.current.size === 0 || document.hidden || prefersReduced) {
+        rafId = null
+        return
+      }
+
+      const idleElapsed = now - lastPointerAtRef.current
+      const isIdle = lastPointerAtRef.current === 0 || idleElapsed > 3200
+
+      let desiredX = targetRef.current.x
+      let desiredY = targetRef.current.y
+
+      if (isIdle) {
+        const t = now * 0.001
+        desiredX = Math.sin(t * 0.42) * 0.22
+        desiredY = Math.cos(t * 0.31) * 0.16
+      }
+
+      const ease = 0.075
+      coordsRef.current.x += (desiredX - coordsRef.current.x) * ease
+      coordsRef.current.y += (desiredY - coordsRef.current.y) * ease
+
+      const { x, y } = coordsRef.current
+      subscribersRef.current.forEach((cb) => cb(x, y))
+
+      rafId = requestAnimationFrame(tick)
+    }
+
+    const startLoop = () => {
+      if (rafId !== null || prefersReduced || document.hidden || subscribersRef.current.size === 0) {
+        return
+      }
+      rafId = requestAnimationFrame(tick)
+    }
+
+    loopControlRef.current = { start: startLoop, stop: stopLoop }
 
     const onPointerMove = (e) => {
       const vw = window.innerWidth || 1
@@ -32,42 +79,25 @@ export default function useParallax() {
       lastPointerAtRef.current = 0
     }
 
-    window.addEventListener('pointermove', onPointerMove, { passive: true })
-    document.addEventListener('mouseleave', onPointerLeave)
-
-    let rafId = null
-    const tick = (now) => {
-      const idleElapsed = now - lastPointerAtRef.current
-      const isIdle = lastPointerAtRef.current === 0 || idleElapsed > 3200
-
-      let desiredX = targetRef.current.x
-      let desiredY = targetRef.current.y
-
-      if (isIdle && !prefersReduced) {
-        const t = now * 0.001
-        desiredX = Math.sin(t * 0.42) * 0.22
-        desiredY = Math.cos(t * 0.31) * 0.16
-      } else if (prefersReduced) {
-        desiredX *= 0.25
-        desiredY *= 0.25
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        stopLoop()
+      } else {
+        startLoop()
       }
-
-      const ease = prefersReduced ? 0.12 : 0.075
-      coordsRef.current.x += (desiredX - coordsRef.current.x) * ease
-      coordsRef.current.y += (desiredY - coordsRef.current.y) * ease
-
-      const { x, y } = coordsRef.current
-      subscribersRef.current.forEach((cb) => cb(x, y))
-
-      rafId = requestAnimationFrame(tick)
     }
 
-    rafId = requestAnimationFrame(tick)
+    window.addEventListener('pointermove', onPointerMove, { passive: true })
+    document.addEventListener('mouseleave', onPointerLeave)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    startLoop()
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId)
+      stopLoop()
       window.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('mouseleave', onPointerLeave)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
 
@@ -76,7 +106,13 @@ export default function useParallax() {
       coordsRef,
       subscribe(cb) {
         subscribersRef.current.add(cb)
-        return () => subscribersRef.current.delete(cb)
+        loopControlRef.current.start()
+        return () => {
+          subscribersRef.current.delete(cb)
+          if (subscribersRef.current.size === 0) {
+            loopControlRef.current.stop()
+          }
+        }
       },
     }),
     []
