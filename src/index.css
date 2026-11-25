@@ -25,13 +25,13 @@
 
 [data-theme='light'] {
   color-scheme: light;
-  --bg-primary: #f4f7ff;
-  --text-primary: #0b1020;
-  --text-muted: rgba(11, 16, 32, 0.68);
-  --surface-glass: rgba(255, 255, 255, 0.84);
-  --surface-border: rgba(15, 23, 42, 0.12);
-  --scrollbar-track: #eef3ff;
-  --scrollbar-thumb: rgba(79, 70, 229, 0.45);
+  --bg-primary: #fff7e6;
+  --text-primary: #1c1208;
+  --text-muted: rgba(28, 18, 8, 0.72);
+  --surface-glass: rgba(255, 251, 242, 0.86);
+  --surface-border: rgba(180, 83, 9, 0.14);
+  --scrollbar-track: #fff3db;
+  --scrollbar-thumb: rgba(217, 119, 6, 0.45);
 }
 
 * {
@@ -219,21 +219,21 @@ body::after {
   animation: star-twinkle 2.4s ease-in-out infinite;
 }
 
-/* White dwarf corona subtle spin/pulse */
+/* Solar corona subtle organic pulse */
 @keyframes corona-pulse {
   0%,
   100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 0.85;
+    transform: scale(0.95);
+    opacity: 0.65;
   }
   50% {
-    transform: scale(1.14) rotate(180deg);
+    transform: scale(1.18);
     opacity: 1;
   }
 }
 
 .animate-corona-pulse {
-  animation: corona-pulse 6s linear infinite;
+  animation: corona-pulse 4.2s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

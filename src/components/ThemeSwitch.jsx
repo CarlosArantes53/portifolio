@@ -6,12 +6,12 @@ export default function ThemeSwitch({ theme, onToggle }) {
       type="button"
       role="switch"
       aria-checked={isLight}
-      aria-label={isLight ? 'Alternar para tema Galáxia escuro' : 'Alternar para tema Anã Branca claro'}
+      aria-label={isLight ? 'Alternar para tema Galáxia escuro' : 'Alternar para tema Sol claro'}
       onClick={onToggle}
-      className={`group relative inline-flex h-10 w-[150px] items-center rounded-full p-1 transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+      className={`group relative inline-flex h-10 w-[150px] items-center rounded-full p-1 transition-all duration-500 focus:outline-none focus-visible:ring-2 ${
         isLight
-          ? 'bg-gradient-to-r from-sky-50 via-white to-amber-50 border border-slate-900/15 shadow-[0_8px_24px_rgba(14,116,144,0.16)]'
-          : 'bg-gradient-to-r from-[#070b18] via-[#0d142c] to-[#131836] border border-white/15 shadow-[0_8px_28px_rgba(79,70,229,0.28)]'
+          ? 'focus-visible:ring-amber-400 bg-gradient-to-r from-amber-100 via-orange-50 to-amber-200/90 border border-amber-900/15 shadow-[0_8px_24px_rgba(234,88,12,0.22)]'
+          : 'focus-visible:ring-sky-400 bg-gradient-to-r from-[#070b18] via-[#0d142c] to-[#131836] border border-white/15 shadow-[0_8px_28px_rgba(79,70,229,0.28)]'
       }`}
     >
       {/* Track cosmic atmosphere */}
@@ -34,8 +34,8 @@ export default function ThemeSwitch({ theme, onToggle }) {
           </>
         ) : (
           <>
-            <span className="absolute left-3 top-1/2 h-4 w-10 -translate-y-1/2 rounded-full bg-sky-200/35 blur-md" />
-            <span className="absolute right-8 top-1/2 h-5 w-8 -translate-y-1/2 rounded-full bg-amber-200/45 blur-md" />
+            <span className="absolute left-3 top-1/2 h-4 w-12 -translate-y-1/2 rounded-full bg-amber-300/55 blur-md" />
+            <span className="absolute right-7 top-1/2 h-5 w-10 -translate-y-1/2 rounded-full bg-orange-400/40 blur-md" />
           </>
         )}
       </span>
@@ -44,25 +44,25 @@ export default function ThemeSwitch({ theme, onToggle }) {
       <span
         className={`pointer-events-none relative z-10 w-full text-[11px] font-mono font-medium tracking-wide transition-all duration-300 ${
           isLight
-            ? 'pr-9 pl-3 text-left text-slate-800'
+            ? 'pr-10 pl-3 text-center text-amber-950 font-semibold'
             : 'pl-9 pr-3 text-right text-slate-100/90'
         }`}
       >
-        {isLight ? 'Anã Branca' : 'Galáxia'}
+        {isLight ? 'Sol' : 'Galáxia'}
       </span>
 
       {/* Sliding Celestial Orb Knob */}
       <span
         className={`absolute top-1 left-1 z-20 flex h-8 w-8 items-center justify-center rounded-full transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
           isLight
-            ? 'translate-x-[108px] bg-white shadow-[0_0_16px_rgba(56,189,248,0.65),0_0_8px_rgba(251,191,36,0.65)] ring-1 ring-amber-300/70'
+            ? 'translate-x-[108px] bg-gradient-to-tr from-orange-500 via-amber-400 to-yellow-200 shadow-[0_0_18px_rgba(245,158,11,0.85),0_0_8px_rgba(234,88,12,0.55)] ring-1 ring-amber-200/90'
             : 'translate-x-0 bg-gradient-to-br from-indigo-950 via-slate-900 to-sky-900 shadow-[0_0_14px_rgba(129,140,248,0.6)] ring-1 ring-sky-300/40'
         }`}
       >
         {isLight ? (
           <span className="relative flex items-center justify-center">
-            <span className="animate-corona-pulse absolute h-7 w-7 rounded-full border border-dashed border-sky-400/70" />
-            <span className="h-3.5 w-3.5 rounded-full bg-gradient-to-tr from-amber-300 via-white to-sky-300 shadow-[0_0_10px_rgba(255,255,255,1)]" />
+            <span className="animate-corona-pulse absolute h-7 w-7 rounded-full bg-amber-300/60 blur-[3px]" />
+            <span className="h-3.5 w-3.5 rounded-full bg-gradient-to-tr from-amber-100 via-yellow-50 to-white shadow-[0_0_10px_rgba(255,251,235,1)]" />
           </span>
         ) : (
           <svg

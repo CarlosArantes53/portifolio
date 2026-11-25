@@ -7,13 +7,33 @@ const GALAXY_COLORS = [
   '254, 243, 199', // warm starlight (#fef3c7)
 ]
 
-const WHITE_DWARF_COLORS = [
-  '2, 132, 199',   // ionized azure (#0284c7)
-  '79, 70, 229',   // deep cosmic indigo (#4f46e5)
-  '217, 119, 6',   // incandescent gold (#d97706)
-  '234, 88, 12',   // plasma coral (#ea580c)
-  '100, 116, 139', // slate-silver speck (#64748b)
+const SOLAR_PARTICLE_COLORS = [
+  '245, 158, 11', // solar gold (#f59e0b)
+  '234, 88, 12',  // coronal orange (#ea580c)
+  '217, 119, 6',  // intense amber (#d97706)
+  '220, 68, 38',  // solar flare crimson-orange (#dc4426)
+  '180, 83, 9',   // copper ember (#b45309)
 ]
+
+function createGaussianGlowSprite(r, g, b, size = 256) {
+  const sprite = document.createElement('canvas')
+  sprite.width = size
+  sprite.height = size
+  const sctx = sprite.getContext('2d')
+  if (!sctx) return sprite
+
+  const half = size * 0.5
+  const grad = sctx.createRadialGradient(half, half, 0, half, half, half)
+  const stops = 11
+  for (let i = 0; i <= stops; i++) {
+    const u = i / stops
+    const alpha = i === stops ? 0 : Math.exp(-4.8 * u * u)
+    grad.addColorStop(u, `rgba(${r}, ${g}, ${b}, ${alpha.toFixed(4)})`)
+  }
+  sctx.fillStyle = grad
+  sctx.fillRect(0, 0, size, size)
+  return sprite
+}
 
 function createStars(width, height) {
   const layers = [
@@ -43,31 +63,100 @@ function createStars(width, height) {
   return stars
 }
 
-function createBigBangParticles(maxRadius) {
+function createSolarWindParticles(maxRadius) {
   const layers = [
-    { count: 80, depth: 0.3, speed: 0.45, sizeMin: 1.0, sizeMax: 2.0 },
-    { count: 75, depth: 0.65, speed: 0.85, sizeMin: 1.3, sizeMax: 2.7 },
-    { count: 55, depth: 1.1, speed: 1.35, sizeMin: 1.8, sizeMax: 3.6 },
+    { count: 65, depth: 0.3, speed: 0.42, sizeMin: 1.0, sizeMax: 2.0 },
+    { count: 60, depth: 0.65, speed: 0.78, sizeMin: 1.3, sizeMax: 2.7 },
+    { count: 50, depth: 1.05, speed: 1.22, sizeMin: 1.8, sizeMax: 3.4 },
   ]
   const particles = []
   for (const layer of layers) {
     for (let i = 0; i < layer.count; i++) {
-      const color = WHITE_DWARF_COLORS[Math.floor(Math.random() * WHITE_DWARF_COLORS.length)]
+      const color = SOLAR_PARTICLE_COLORS[Math.floor(Math.random() * SOLAR_PARTICLE_COLORS.length)]
       particles.push({
         angle: Math.random() * Math.PI * 2,
-        spin: (Math.random() - 0.5) * 0.0022,
-        radius: 14 + Math.random() * maxRadius,
+        spin: (Math.random() - 0.5) * 0.0028,
+        radius: 18 + Math.random() * maxRadius,
         maxRadius,
         depth: layer.depth,
-        baseSpeed: layer.speed * (0.75 + Math.random() * 0.6),
+        baseSpeed: layer.speed * (0.75 + Math.random() * 0.55),
         size: layer.sizeMin + Math.random() * (layer.sizeMax - layer.sizeMin),
         color,
-        alpha: 0.45 + Math.random() * 0.5,
+        alpha: 0.38 + Math.random() * 0.48,
         phase: Math.random() * Math.PI * 2,
+        waveFreq: 1.2 + Math.random() * 1.8,
+        waveAmp: 0.05 + Math.random() * 0.14,
+        glowSpriteKey: Math.random() > 0.45 ? 'gold' : 'amber',
       })
     }
   }
   return particles
+}
+
+function createSolarHalos() {
+  const spriteKeys = ['gold', 'amber', 'flareOrange', 'whiteGold', 'gold', 'amber', 'flareOrange', 'gold']
+  const halos = []
+  for (let i = 0; i < 8; i++) {
+    halos.push({
+      spriteKey: spriteKeys[i],
+      aspectX: 1.15 + Math.random() * 0.8,
+      aspectY: 0.68 + Math.random() * 0.57,
+      radiusFactor: 0.42 + (i % 4) * 0.13 + Math.random() * 0.08,
+      offsetAngle: (i / 8) * Math.PI * 2 + Math.random() * 0.5,
+      offsetDistFactor: 0.02 + Math.random() * 0.06,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (i % 2 === 0 ? 1 : -1) * (0.015 + Math.random() * 0.025),
+      pulseSpeed: 0.35 + Math.random() * 0.45,
+      pulsePhase: Math.random() * Math.PI * 2,
+      alpha: 0.11 + Math.random() * 0.15,
+    })
+  }
+  return halos
+}
+
+function randomizeStormPlume(plume, initialProgress = 0) {
+  const paletteCycle = ['gold', 'amber', 'flareOrange', 'crimsonGlow']
+  plume.angle = Math.random() * Math.PI * 2
+  plume.curl = (Math.random() > 0.5 ? 1 : -1) * (0.14 + Math.random() * 0.31)
+  plume.waveFreq = 1.4 + Math.random() * 1.8
+  plume.waveAmp = 0.04 + Math.random() * 0.09
+  plume.wavePhase = Math.random() * Math.PI * 2
+  plume.reach = 0.62 + Math.random() * 0.52
+  plume.widthScale = 0.78 + Math.random() * 0.58
+  plume.speed = 0.04 + Math.random() * 0.045
+  plume.progress = initialProgress
+  plume.alpha = 0.2 + Math.random() * 0.14
+  plume.puffs = Array.from({ length: 5 }, (_, idx) => ({
+    longOffset: -idx * 0.085 + (Math.random() - 0.5) * 0.03,
+    crossOffset: (Math.random() - 0.5) * 0.1,
+    sizeFactor: 0.72 + idx * 0.22 + Math.random() * 0.15,
+    spriteKey: paletteCycle[Math.min(paletteCycle.length - 1, Math.floor(idx * 0.85))],
+    alphaWeight: 1 - idx * 0.13,
+  }))
+  return plume
+}
+
+function createSolarStormPlumes() {
+  return Array.from({ length: 12 }, (_, i) => {
+    const initialProgress = ((i / 12) + Math.random() * 0.06) % 1
+    return randomizeStormPlume({}, initialProgress)
+  })
+}
+
+function createSolarProminences() {
+  const spriteKeys = ['gold', 'amber', 'flareOrange', 'amber', 'gold']
+  return Array.from({ length: 5 }, (_, i) => ({
+    baseAngle: (i / 5) * Math.PI * 2 + Math.random() * 0.45,
+    driftSpeed: (i % 2 === 0 ? 1 : -1) * (0.018 + Math.random() * 0.022),
+    span: 0.48 + Math.random() * 0.44,
+    innerFactor: 0.16 + Math.random() * 0.06,
+    peakFactor: 0.27 + Math.random() * 0.11,
+    waveSpeed: 0.6 + Math.random() * 0.7,
+    wavePhase: Math.random() * Math.PI * 2,
+    alpha: 0.14 + Math.random() * 0.1,
+    spriteKey: spriteKeys[i],
+    nodeCount: 9,
+  }))
 }
 
 function createNebulae() {
@@ -126,7 +215,17 @@ export default function CosmicBackground({ theme, parallax }) {
     setSize()
 
     let stars = createStars(width, height)
-    let bigBangParticles = createBigBangParticles(maxRadius)
+    let solarWindParticles = createSolarWindParticles(maxRadius)
+    const solarSprites = {
+      whiteGold: createGaussianGlowSprite(255, 251, 230, 256),
+      gold: createGaussianGlowSprite(251, 191, 36, 256),
+      amber: createGaussianGlowSprite(249, 115, 22, 256),
+      flareOrange: createGaussianGlowSprite(234, 88, 12, 256),
+      crimsonGlow: createGaussianGlowSprite(220, 68, 38, 256),
+    }
+    const solarHalos = createSolarHalos()
+    const solarStormPlumes = createSolarStormPlumes()
+    const solarProminences = createSolarProminences()
     const nebulae = createNebulae()
     const shootingStars = []
     let nextShootAt = performance.now() + 2600 + Math.random() * 2500
@@ -138,7 +237,7 @@ export default function CosmicBackground({ theme, parallax }) {
     const onResize = () => {
       setSize()
       stars = createStars(width, height)
-      bigBangParticles = createBigBangParticles(maxRadius)
+      solarWindParticles = createSolarWindParticles(maxRadius)
     }
     window.addEventListener('resize', onResize)
 
@@ -279,133 +378,215 @@ export default function CosmicBackground({ theme, parallax }) {
       ctx.restore()
     }
 
-    const drawWhiteDwarf = (dt, t, px, py, opacity) => {
+    const drawSun = (dt, t, px, py, opacity) => {
       ctx.save()
       ctx.globalAlpha = opacity
 
       const cx = width * 0.5 + px * 14
       const cy = height * 0.5 + py * 14
+      const minDim = Math.min(width, height)
 
-      // Luminous high-key porcelain-cosmos backdrop
-      const bgGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, maxRadius * 1.15)
-      bgGrad.addColorStop(0, '#ffffff')
-      bgGrad.addColorStop(0.28, '#f5f9ff')
-      bgGrad.addColorStop(0.58, '#eef3ff')
-      bgGrad.addColorStop(0.82, '#fff7ed')
-      bgGrad.addColorStop(1, '#e2e8f8')
+      const stampGlow = (sprite, x, y, rx, ry, rotation, localAlpha) => {
+        if (localAlpha <= 0.002) return
+        ctx.save()
+        ctx.globalAlpha = opacity * localAlpha
+        ctx.translate(x, y)
+        if (rotation) ctx.rotate(rotation)
+        ctx.drawImage(sprite, -rx, -ry, rx * 2, ry * 2)
+        ctx.restore()
+      }
+
+      // 1. Warm luminous solar atmosphere backdrop
+      const bgGrad = ctx.createRadialGradient(cx, cy, 12, cx, cy, maxRadius * 1.15)
+      bgGrad.addColorStop(0, '#fffef7')
+      bgGrad.addColorStop(0.24, '#fff7e0')
+      bgGrad.addColorStop(0.52, '#ffecd1')
+      bgGrad.addColorStop(0.78, '#fde0be')
+      bgGrad.addColorStop(1, '#f8d5b0')
       ctx.fillStyle = bgGrad
       ctx.fillRect(0, 0, width, height)
 
-      // Subtle rotating volumetric rays from the White Dwarf core
-      const rayCount = 10
-      const baseAngle = prefersReduced ? 0 : t * 0.045
-      for (let i = 0; i < rayCount; i++) {
-        const a = baseAngle + (i / rayCount) * Math.PI * 2
-        const spread = 0.09
-        const rayLen = maxRadius * 1.05
-        const rayGrad = ctx.createRadialGradient(cx, cy, 20, cx, cy, rayLen)
-        const isWarm = i % 2 === 0
-        rayGrad.addColorStop(0, isWarm ? 'rgba(251, 191, 36, 0.10)' : 'rgba(56, 189, 248, 0.10)')
-        rayGrad.addColorStop(0.45, isWarm ? 'rgba(251, 191, 36, 0.035)' : 'rgba(99, 102, 241, 0.035)')
-        rayGrad.addColorStop(1, 'rgba(255, 255, 255, 0)')
-
-        ctx.fillStyle = rayGrad
-        ctx.beginPath()
-        ctx.moveTo(cx, cy)
-        ctx.lineTo(cx + Math.cos(a - spread) * rayLen, cy + Math.sin(a - spread) * rayLen)
-        ctx.lineTo(cx + Math.cos(a + spread) * rayLen, cy + Math.sin(a + spread) * rayLen)
-        ctx.closePath()
-        ctx.fill()
+      // 2. Diffuse asymmetric solar halos (overlapping Gaussian layers, no geometric borders)
+      for (const halo of solarHalos) {
+        const animTime = prefersReduced ? 0 : t
+        const pulse = 1 + Math.sin(animTime * halo.pulseSpeed + halo.pulsePhase) * 0.09
+        const baseR = minDim * halo.radiusFactor * pulse
+        const rot = halo.rotation + animTime * halo.rotSpeed
+        const driftAngle = halo.offsetAngle + animTime * 0.03
+        const offsetDist = minDim * halo.offsetDistFactor
+        const hx = cx + Math.cos(driftAngle) * offsetDist + px * 10
+        const hy = cy + Math.sin(driftAngle) * offsetDist + py * 10
+        stampGlow(
+          solarSprites[halo.spriteKey],
+          hx,
+          hy,
+          baseR * halo.aspectX,
+          baseR * halo.aspectY,
+          rot,
+          halo.alpha
+        )
       }
 
-      // Pulsating White Dwarf Singularity corona behind center hero
-      const pulse = prefersReduced ? 1 : 1 + Math.sin(t * 1.4) * 0.06
-      const outerCoronaRadius = Math.min(width, height) * 0.42 * pulse
-      const outerCorona = ctx.createRadialGradient(cx, cy, 12, cx, cy, outerCoronaRadius)
-      outerCorona.addColorStop(0, 'rgba(255, 255, 255, 0.96)')
-      outerCorona.addColorStop(0.24, 'rgba(125, 211, 252, 0.24)')
-      outerCorona.addColorStop(0.52, 'rgba(251, 191, 36, 0.14)')
-      outerCorona.addColorStop(0.78, 'rgba(99, 102, 241, 0.06)')
-      outerCorona.addColorStop(1, 'rgba(255, 255, 255, 0)')
-      ctx.fillStyle = outerCorona
-      ctx.beginPath()
-      ctx.arc(cx, cy, outerCoronaRadius, 0, Math.PI * 2)
-      ctx.fill()
-
-      // Continuous Big Bang inflation rings expanding outward
-      const ringCount = 4
-      for (let i = 0; i < ringCount; i++) {
-        const phase = prefersReduced ? (i + 0.35) / ringCount : (t * 0.16 + i / ringCount) % 1
-        const ringRadius = 36 + phase * maxRadius * 0.95
-        const ringAlpha = Math.sin(phase * Math.PI) * 0.24
-        ctx.strokeStyle = i % 2 === 0 ? `rgba(2, 132, 199, ${ringAlpha})` : `rgba(217, 119, 6, ${ringAlpha * 0.85})`
-        ctx.lineWidth = 1.25 - phase * 0.55
-        ctx.beginPath()
-        ctx.arc(cx, cy, ringRadius, 0, Math.PI * 2)
-        ctx.stroke()
-      }
-
-      // Outward-expanding Big Bang / stellar wind particles
-      for (const p of bigBangParticles) {
+      // 3. Solar storms / CME plumes (organic curved multi-puff eruptions)
+      for (const plume of solarStormPlumes) {
         if (!prefersReduced) {
-          const speedBoost = 1 + (p.radius / p.maxRadius) * 2.1
+          plume.progress += plume.speed * dt
+          if (plume.progress >= 1) {
+            randomizeStormPlume(plume, 0)
+          }
+        }
+
+        const envelope = Math.pow(Math.sin(plume.progress * Math.PI), 1.15)
+        if (envelope <= 0.005) continue
+
+        for (const puff of plume.puffs) {
+          const u = Math.max(0.02, Math.min(1, plume.progress + puff.longOffset))
+          const radialDist = minDim * 0.06 + u * maxRadius * plume.reach
+          const wave = Math.sin(u * Math.PI * plume.waveFreq + plume.wavePhase) * plume.waveAmp
+          const localAngle = plume.angle + plume.curl * u * u + wave + puff.crossOffset * (0.4 + u)
+
+          const x = cx + Math.cos(localAngle) * radialDist + px * (16 + u * 24)
+          const y = cy + Math.sin(localAngle) * radialDist + py * (16 + u * 24)
+
+          const puffSpread = minDim * (0.09 + u * 0.24) * plume.widthScale * puff.sizeFactor
+          const stretchAlong = puffSpread * (1.28 + u * 0.55)
+          const localAlpha = plume.alpha * envelope * puff.alphaWeight
+
+          stampGlow(
+            solarSprites[puff.spriteKey],
+            x,
+            y,
+            stretchAlong,
+            puffSpread,
+            localAngle,
+            localAlpha
+          )
+        }
+      }
+
+      // 4. Soft coronal prominences (undulating magnetic plasma arcs built from Gaussian nodes)
+      for (const prom of solarProminences) {
+        const animTime = prefersReduced ? 0 : t
+        const centerAngle = prom.baseAngle + animTime * prom.driftSpeed
+
+        for (let n = 0; n < prom.nodeCount; n++) {
+          const u = n / (prom.nodeCount - 1)
+          const arcShape = Math.sin(u * Math.PI)
+          const harmonic =
+            Math.sin(u * Math.PI * 2.5 + animTime * prom.waveSpeed + prom.wavePhase) * 0.032
+          const a = centerAngle + (u - 0.5) * prom.span
+          const r = minDim * (prom.innerFactor + (prom.peakFactor - prom.innerFactor) * arcShape + harmonic)
+
+          const nx = cx + Math.cos(a) * r + px * 18
+          const ny = cy + Math.sin(a) * r + py * 18
+          const nodeRadius = minDim * (0.065 + arcShape * 0.065)
+          const nodeAlpha = prom.alpha * (0.35 + 0.65 * arcShape)
+
+          stampGlow(
+            solarSprites[prom.spriteKey],
+            nx,
+            ny,
+            nodeRadius * 1.35,
+            nodeRadius * 0.85,
+            a + Math.PI * 0.5,
+            nodeAlpha
+          )
+        }
+      }
+
+      // 5. Diffuse pulsating solar core (overlapping offset sprites, no geometric disc)
+      const coreTime = prefersReduced ? 0 : t
+      const coreLayers = [
+        { key: 'gold', ox: -0.025, oy: 0.015, scale: 0.34, speed: 0.9, phase: 0, alpha: 0.42 },
+        { key: 'whiteGold', ox: 0.02, oy: -0.02, scale: 0.28, speed: 1.25, phase: 2.1, alpha: 0.62 },
+        { key: 'whiteGold', ox: 0, oy: 0.01, scale: 0.21, speed: 1.55, phase: 4.2, alpha: 0.55 },
+      ]
+      for (const cl of coreLayers) {
+        const breathe = 1 + Math.sin(coreTime * cl.speed + cl.phase) * 0.075
+        const cr = minDim * cl.scale * breathe
+        stampGlow(
+          solarSprites[cl.key],
+          cx + minDim * cl.ox,
+          cy + minDim * cl.oy,
+          cr * 1.12,
+          cr * 0.96,
+          coreTime * 0.08 + cl.phase,
+          cl.alpha
+        )
+      }
+
+      // 6. Curved, turbulent solar wind particles
+      for (const p of solarWindParticles) {
+        if (!prefersReduced) {
+          const speedBoost = 1 + (p.radius / p.maxRadius) * 1.9
           p.radius += p.baseSpeed * speedBoost * dt * 60
           p.angle += p.spin * dt * 60
           if (p.radius > p.maxRadius + 24) {
-            p.radius = 16 + Math.random() * 34
+            p.radius = 18 + Math.random() * 36
             p.angle = Math.random() * Math.PI * 2
           }
         }
 
         const normR = Math.min(1, p.radius / p.maxRadius)
-        const perspectiveScale = 0.55 + normR * 0.95
-        const x = cx + Math.cos(p.angle) * p.radius + px * p.depth * 62
-        const y = cy + Math.sin(p.angle) * p.radius + py * p.depth * 62
+        const flowPhase = prefersReduced ? p.phase : t * 0.75 + p.phase
+        const waveOffset = Math.sin(normR * Math.PI * p.waveFreq + flowPhase) * p.waveAmp
+        const curvedAngle = p.angle + normR * 0.28 + waveOffset
+
+        const perspectiveScale = 0.55 + normR * 0.9
+        const x = cx + Math.cos(curvedAngle) * p.radius + px * p.depth * 62
+        const y = cy + Math.sin(curvedAngle) * p.radius + py * p.depth * 62
 
         // Fade near core so center text stays crisp, and fade smoothly at outer rim
-        const coreClearance = Math.min(1, Math.max(0, (p.radius - 45) / 95))
+        const coreClearance = Math.min(1, Math.max(0, (p.radius - 48) / 95))
         const outerFade = normR > 0.8 ? (1 - normR) / 0.2 : 1
         const particleAlpha = Math.max(0, p.alpha * coreClearance * outerFade)
 
         if (particleAlpha <= 0.01) continue
 
-        // Subtle radial velocity trail on mid/outer fast particles
-        const tailLen = (6 + normR * 18) * p.depth
-        const tx = x - Math.cos(p.angle) * tailLen
-        const ty = y - Math.sin(p.angle) * tailLen
+        if (p.depth >= 0.65) {
+          const haloR = p.size * perspectiveScale * 3.4
+          stampGlow(solarSprites[p.glowSpriteKey], x, y, haloR, haloR, 0, particleAlpha * 0.26)
+        }
+
+        // Subtle curved solar wind trail along local flow tangent
+        const tangentAngle = curvedAngle + Math.cos(normR * Math.PI * p.waveFreq + flowPhase) * p.waveAmp * 1.2
+        const tailLen = (6 + normR * 17) * p.depth
+        const tx = x - Math.cos(tangentAngle) * tailLen
+        const ty = y - Math.sin(tangentAngle) * tailLen
         const trailGrad = ctx.createLinearGradient(x, y, tx, ty)
-        trailGrad.addColorStop(0, `rgba(${p.color}, ${particleAlpha * 0.65})`)
+        trailGrad.addColorStop(0, `rgba(${p.color}, ${particleAlpha * 0.58})`)
         trailGrad.addColorStop(1, `rgba(${p.color}, 0)`)
 
         ctx.strokeStyle = trailGrad
-        ctx.lineWidth = Math.max(0.8, p.size * 0.6 * perspectiveScale)
+        ctx.lineWidth = Math.max(0.8, p.size * 0.58 * perspectiveScale)
         ctx.beginPath()
         ctx.moveTo(x, y)
         ctx.lineTo(tx, ty)
         ctx.stroke()
 
-        // Iridescent particle core
+        // Warm ionized plasma mote
         ctx.fillStyle = `rgba(${p.color}, ${particleAlpha})`
         ctx.beginPath()
         ctx.arc(x, y, p.size * perspectiveScale, 0, Math.PI * 2)
         ctx.fill()
       }
 
-      // Soft pure-white readability cushion directly behind central Hero typography
+      // 7. Soft warm solar readability cushion directly behind central Hero typography
+      const cushionRadius = minDim * 0.29
       const heroCushion = ctx.createRadialGradient(
         width * 0.5,
         height * 0.5,
         0,
         width * 0.5,
         height * 0.5,
-        Math.min(width, height) * 0.28
+        cushionRadius
       )
-      heroCushion.addColorStop(0, 'rgba(255, 255, 255, 0.72)')
-      heroCushion.addColorStop(0.65, 'rgba(255, 255, 255, 0.28)')
-      heroCushion.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      heroCushion.addColorStop(0, 'rgba(255, 253, 245, 0.78)')
+      heroCushion.addColorStop(0.65, 'rgba(255, 248, 228, 0.30)')
+      heroCushion.addColorStop(1, 'rgba(255, 246, 220, 0)')
       ctx.fillStyle = heroCushion
       ctx.beginPath()
-      ctx.arc(width * 0.5, height * 0.5, Math.min(width, height) * 0.28, 0, Math.PI * 2)
+      ctx.arc(width * 0.5, height * 0.5, cushionRadius, 0, Math.PI * 2)
       ctx.fill()
 
       ctx.restore()
@@ -432,9 +613,10 @@ export default function CosmicBackground({ theme, parallax }) {
       const grad = ctx.createRadialGradient(cx, cy, Math.max(0, r - 48), cx, cy, r + 20)
       if (sw.toLight) {
         grad.addColorStop(0, 'rgba(251, 191, 36, 0)')
-        grad.addColorStop(0.55, `rgba(255, 255, 255, ${alpha})`)
-        grad.addColorStop(0.78, `rgba(56, 189, 248, ${alpha * 0.75})`)
-        grad.addColorStop(1, 'rgba(56, 189, 248, 0)')
+        grad.addColorStop(0.5, `rgba(255, 251, 235, ${alpha})`)
+        grad.addColorStop(0.72, `rgba(251, 191, 36, ${alpha * 0.85})`)
+        grad.addColorStop(0.88, `rgba(234, 88, 12, ${alpha * 0.55})`)
+        grad.addColorStop(1, 'rgba(234, 88, 12, 0)')
       } else {
         grad.addColorStop(0, 'rgba(99, 102, 241, 0)')
         grad.addColorStop(0.6, `rgba(129, 140, 248, ${alpha * 0.8})`)
@@ -465,7 +647,7 @@ export default function CosmicBackground({ theme, parallax }) {
         drawGalaxy(dt, t, px, py, 1 - blend)
       }
       if (blend > 0.005) {
-        drawWhiteDwarf(dt, t, px, py, blend)
+        drawSun(dt, t, px, py, blend)
       }
 
       drawShockwave(dt)

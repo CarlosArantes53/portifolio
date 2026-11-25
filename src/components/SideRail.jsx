@@ -21,7 +21,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
         className={`fixed left-0 top-0 bottom-0 z-30 hidden w-14 flex-col items-center justify-between py-4 border-r backdrop-blur-xl transition-colors duration-500 lg:flex ${
           isDark
             ? 'bg-[#070a14]/75 border-white/10 text-slate-300'
-            : 'bg-white/70 border-slate-900/10 text-slate-700'
+            : 'bg-[#fffbf2]/78 border-amber-900/12 text-stone-700'
         }`}
       >
         {/* Brand Monogram */}
@@ -32,7 +32,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
           className={`flex h-9 w-9 items-center justify-center rounded-xl font-display text-xs font-bold tracking-wider transition-all hover:scale-105 ${
             isDark
               ? 'bg-white/10 text-white hover:bg-white/20 ring-1 ring-white/15'
-              : 'bg-slate-900 text-white hover:bg-slate-800 shadow-sm'
+              : 'bg-stone-900 text-amber-50 hover:bg-amber-800 shadow-sm'
           }`}
         >
           {PROFILE.initials}
@@ -53,17 +53,17 @@ export default function SideRail({ activeSection, onSelect, theme }) {
                   isActive
                     ? isDark
                       ? 'bg-white/15 text-sky-300 ring-1 ring-sky-300/35'
-                      : 'bg-indigo-600/10 text-indigo-700 ring-1 ring-indigo-600/25'
+                      : 'bg-amber-500/15 text-amber-800 ring-1 ring-amber-600/30'
                     : isDark
                     ? 'text-slate-400 hover:bg-white/10 hover:text-white'
-                    : 'text-slate-500 hover:bg-slate-900/5 hover:text-slate-900'
+                    : 'text-stone-600 hover:bg-amber-900/5 hover:text-stone-950'
                 }`}
               >
                 <Icon />
                 {isActive && (
                   <span
                     className={`absolute -left-1.5 h-4 w-1 rounded-r-full ${
-                      isDark ? 'bg-sky-300' : 'bg-indigo-600'
+                      isDark ? 'bg-sky-300' : 'bg-amber-600'
                     }`}
                   />
                 )}
@@ -72,7 +72,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
                   className={`pointer-events-none absolute left-12 whitespace-nowrap rounded-lg px-2.5 py-1 text-xs font-medium opacity-0 shadow-lg transition-all duration-150 group-hover:left-14 group-hover:opacity-100 ${
                     isDark
                       ? 'bg-slate-900/95 text-white border border-white/10'
-                      : 'bg-slate-900 text-white'
+                      : 'bg-stone-900 text-amber-50'
                   }`}
                 >
                   {label}
@@ -93,7 +93,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
             className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
               isDark
                 ? 'text-slate-400 hover:bg-white/10 hover:text-white'
-                : 'text-slate-500 hover:bg-slate-900/5 hover:text-slate-900'
+                : 'text-stone-600 hover:bg-amber-900/5 hover:text-stone-950'
             }`}
           >
             <GithubMiniIcon />
@@ -107,7 +107,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
             className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
               isDark
                 ? 'text-slate-400 hover:bg-white/10 hover:text-white'
-                : 'text-slate-500 hover:bg-slate-900/5 hover:text-slate-900'
+                : 'text-stone-600 hover:bg-amber-900/5 hover:text-stone-950'
             }`}
           >
             <LinkedinMiniIcon />
@@ -121,7 +121,7 @@ export default function SideRail({ activeSection, onSelect, theme }) {
         className={`fixed bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-1 rounded-2xl border px-2 py-1.5 backdrop-blur-xl shadow-2xl transition-colors duration-500 lg:hidden ${
           isDark
             ? 'bg-[#090d1a]/85 border-white/15 text-slate-200'
-            : 'bg-white/85 border-slate-900/12 text-slate-800 shadow-[0_10px_30px_rgba(15,23,42,0.12)]'
+            : 'bg-[#fffbf2]/88 border-amber-900/12 text-stone-800 shadow-[0_10px_30px_rgba(120,53,15,0.14)]'
         }`}
       >
         {ITEMS.map(({ id, label, icon: Icon }) => {
@@ -135,10 +135,10 @@ export default function SideRail({ activeSection, onSelect, theme }) {
                 isActive
                   ? isDark
                     ? 'bg-white/15 text-sky-300'
-                    : 'bg-indigo-600/12 text-indigo-700'
+                    : 'bg-amber-500/15 text-amber-800'
                   : isDark
                   ? 'text-slate-400 hover:text-white'
-                  : 'text-slate-500 hover:text-slate-900'
+                  : 'text-stone-600 hover:text-stone-950'
               }`}
             >
               <Icon size={16} />

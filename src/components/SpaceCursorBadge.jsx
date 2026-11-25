@@ -71,10 +71,10 @@ export default function SpaceCursorBadge({ theme, hidden }) {
       } ${
         isDark
           ? 'bg-white/15 text-white backdrop-blur-md border border-white/20'
-          : 'bg-slate-900/85 text-white backdrop-blur-md border border-slate-900/20'
+          : 'bg-stone-900/85 text-amber-50 backdrop-blur-md border border-amber-900/20'
       }`}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+      <span className={`h-1.5 w-1.5 rounded-full ${isDark ? 'bg-sky-400' : 'bg-amber-400'}`} />
       <span>Você</span>
     </div>
   )

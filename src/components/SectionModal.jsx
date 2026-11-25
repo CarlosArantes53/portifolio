@@ -60,7 +60,7 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
       <div
         onClick={onClose}
         className={`fixed inset-0 backdrop-blur-md transition-opacity ${
-          isDark ? 'bg-black/65' : 'bg-slate-900/30'
+          isDark ? 'bg-black/65' : 'bg-stone-950/30'
         }`}
       />
 
@@ -69,13 +69,13 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
         className={`animate-panel-enter relative z-10 flex max-h-[86vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border backdrop-blur-2xl ${
           isDark
             ? 'bg-[#090e1c]/88 border-white/15 text-slate-100 shadow-[0_32px_90px_rgba(0,0,0,0.8)]'
-            : 'bg-white/90 border-slate-900/12 text-slate-900 shadow-[0_32px_90px_rgba(15,23,42,0.18)]'
+            : 'bg-[#fffdf8]/92 border-amber-900/12 text-stone-900 shadow-[0_32px_90px_rgba(120,53,15,0.18)]'
         }`}
       >
         {/* Top Bar with Tabs & Close */}
         <div
           className={`flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3.5 sm:px-7 ${
-            isDark ? 'border-white/10' : 'border-slate-900/10'
+            isDark ? 'border-white/10' : 'border-amber-900/10'
           }`}
         >
           <div className="flex flex-wrap items-center gap-1.5">
@@ -90,10 +90,10 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
                     active
                       ? isDark
                         ? 'bg-white text-slate-950 shadow-sm'
-                        : 'bg-slate-900 text-white shadow-sm'
+                        : 'bg-stone-900 text-amber-50 shadow-sm'
                       : isDark
                       ? 'text-slate-300 hover:bg-white/10 hover:text-white'
-                      : 'text-slate-600 hover:bg-slate-900/8 hover:text-slate-900'
+                      : 'text-stone-600 hover:bg-amber-900/8 hover:text-stone-900'
                   }`}
                 >
                   {label}
@@ -109,7 +109,7 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
             className={`flex h-8 w-8 items-center justify-center rounded-full text-lg transition-colors ${
               isDark
                 ? 'bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white'
-                : 'bg-slate-900/8 text-slate-600 hover:bg-slate-900/15 hover:text-slate-900'
+                : 'bg-amber-900/8 text-stone-600 hover:bg-amber-900/15 hover:text-stone-900'
             }`}
           >
             ×
@@ -135,12 +135,12 @@ export default function SectionModal({ activeSection, onSelectSection, onClose, 
 function SobreTab({ isDark }) {
   return (
     <div>
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
         {'// sobre mim'}
       </p>
       <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Quem sou eu</h2>
 
-      <div className={`mt-6 grid gap-5 text-sm leading-relaxed md:grid-cols-2 sm:text-base ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+      <div className={`mt-6 grid gap-5 text-sm leading-relaxed md:grid-cols-2 sm:text-base ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
         <div className="space-y-4">
           <p>{ABOUT_PARAGRAPHS[0]}</p>
           <p>{ABOUT_PARAGRAPHS[1]}</p>
@@ -153,7 +153,7 @@ function SobreTab({ isDark }) {
               target="_blank"
               rel="noopener noreferrer"
               className={`font-semibold underline underline-offset-4 ${
-                isDark ? 'text-sky-300 hover:text-sky-200' : 'text-indigo-600 hover:text-indigo-700'
+                isDark ? 'text-sky-300 hover:text-sky-200' : 'text-amber-700 hover:text-orange-600'
               }`}
             >
               CosmosView
@@ -172,13 +172,13 @@ function SobreTab({ isDark }) {
             className={`rounded-2xl border p-4 text-center ${
               isDark
                 ? 'border-white/10 bg-white/5'
-                : 'border-slate-900/10 bg-slate-900/[0.03]'
+                : 'border-amber-900/10 bg-amber-500/[0.05]'
             }`}
           >
-            <p className={`font-display text-2xl font-bold ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+            <p className={`font-display text-2xl font-bold ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
               {value}
             </p>
-            <p className={`mt-1 text-xs font-mono ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <p className={`mt-1 text-xs font-mono ${isDark ? 'text-slate-400' : 'text-stone-500'}`}>
               {label}
             </p>
           </div>
@@ -196,7 +196,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
             {'// projetos'}
           </p>
           <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">O que construí</h2>
@@ -215,10 +215,10 @@ function ProjetosTab({ isDark, category, setCategory }) {
                   active
                     ? isDark
                       ? 'bg-sky-300 text-slate-950 font-semibold'
-                      : 'bg-indigo-600 text-white font-semibold'
+                      : 'bg-amber-600 text-white font-semibold'
                     : isDark
                     ? 'border border-white/15 text-slate-300 hover:bg-white/10'
-                    : 'border border-slate-900/12 text-slate-600 hover:bg-slate-900/5'
+                    : 'border border-amber-900/12 text-stone-600 hover:bg-amber-900/5'
                 }`}
               >
                 {cat}
@@ -235,7 +235,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
             className={`flex flex-col justify-between gap-4 rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04] hover:border-sky-300/35'
-                : 'border-slate-900/10 bg-slate-50/70 hover:border-indigo-500/40'
+                : 'border-amber-900/10 bg-amber-50/50 hover:border-amber-600/40'
             }`}
           >
             <div>
@@ -251,7 +251,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                       className={`rounded-lg p-1.5 transition-colors ${
                         isDark
                           ? 'text-slate-400 hover:bg-white/10 hover:text-white'
-                          : 'text-slate-500 hover:bg-slate-900/8 hover:text-slate-900'
+                          : 'text-stone-500 hover:bg-amber-900/8 hover:text-stone-900'
                       }`}
                     >
                       <GithubIcon />
@@ -266,7 +266,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                       className={`rounded-lg p-1.5 transition-colors ${
                         isDark
                           ? 'text-sky-300 hover:bg-sky-300/15'
-                          : 'text-indigo-600 hover:bg-indigo-600/10'
+                          : 'text-orange-600 hover:bg-orange-600/10'
                       }`}
                     >
                       <ExternalIcon />
@@ -274,7 +274,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                   )}
                 </div>
               </div>
-              <p className={`mt-2 text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              <p className={`mt-2 text-sm leading-relaxed ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
                 {project.description}
               </p>
             </div>
@@ -286,7 +286,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-mono ${
                     isDark
                       ? 'border border-sky-300/25 bg-sky-300/10 text-sky-200'
-                      : 'border border-indigo-600/20 bg-indigo-600/8 text-indigo-700'
+                      : 'border border-amber-600/25 bg-amber-500/10 text-amber-800'
                   }`}
                 >
                   {tag}
@@ -303,7 +303,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
           target="_blank"
           rel="noopener noreferrer"
           className={`inline-flex items-center gap-1.5 font-mono text-sm font-medium hover:underline ${
-            isDark ? 'text-sky-300' : 'text-indigo-600'
+            isDark ? 'text-sky-300' : 'text-amber-700'
           }`}
         >
           Ver todos os repositórios no GitHub →
@@ -316,7 +316,7 @@ function ProjetosTab({ isDark, category, setCategory }) {
 function StackTab({ isDark }) {
   return (
     <div>
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
         {'// habilidades'}
       </p>
       <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Stack técnico</h2>
@@ -325,12 +325,14 @@ function StackTab({ isDark }) {
         {SKILLS.map(({ name, level }) => (
           <div key={name}>
             <div className="mb-1 flex items-center justify-between text-xs font-mono">
-              <span className={isDark ? 'text-slate-200' : 'text-slate-700'}>{name}</span>
-              <span className={isDark ? 'text-sky-300' : 'text-indigo-600'}>{level}%</span>
+              <span className={isDark ? 'text-slate-200' : 'text-stone-700'}>{name}</span>
+              <span className={isDark ? 'text-sky-300' : 'text-amber-700'}>{level}%</span>
             </div>
-            <div className={`h-2 overflow-hidden rounded-full ${isDark ? 'bg-white/10' : 'bg-slate-200'}`}>
+            <div className={`h-2 overflow-hidden rounded-full ${isDark ? 'bg-white/10' : 'bg-amber-950/10'}`}>
               <div
-                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-sky-400"
+                className={`h-full rounded-full bg-gradient-to-r ${
+                  isDark ? 'from-indigo-500 to-sky-400' : 'from-orange-500 to-amber-400'
+                }`}
                 style={{ width: `${level}%` }}
               />
             </div>
@@ -345,10 +347,10 @@ function StackTab({ isDark }) {
             className={`rounded-2xl border p-5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04]'
-                : 'border-slate-900/10 bg-slate-50/80'
+                : 'border-amber-900/10 bg-amber-50/55'
             }`}
           >
-            <h3 className={`font-display text-sm font-bold ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+            <h3 className={`font-display text-sm font-bold ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
               {title}
             </h3>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -358,7 +360,7 @@ function StackTab({ isDark }) {
                   className={`rounded-full px-2.5 py-0.5 text-[11px] font-mono ${
                     isDark
                       ? 'border border-white/15 bg-white/5 text-slate-200'
-                      : 'border border-slate-900/10 bg-white text-slate-700'
+                      : 'border border-amber-900/10 bg-white text-stone-700'
                   }`}
                 >
                   {item}
@@ -375,11 +377,11 @@ function StackTab({ isDark }) {
 function ContatoTab({ isDark, copied, onCopyEmail }) {
   return (
     <div className="text-center">
-      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-indigo-600'}`}>
+      <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? 'text-sky-300' : 'text-amber-700'}`}>
         {'// contato'}
       </p>
       <h2 className="mt-1.5 font-display text-3xl font-bold sm:text-4xl">Vamos conversar</h2>
-      <p className={`mx-auto mt-2 max-w-md text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+      <p className={`mx-auto mt-2 max-w-md text-sm sm:text-base ${isDark ? 'text-slate-300' : 'text-stone-600'}`}>
         Aberto a oportunidades, colaborações e projetos interessantes. Entre em contato por qualquer canal abaixo.
       </p>
 
@@ -392,7 +394,7 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
               ? 'bg-emerald-500 text-white'
               : isDark
               ? 'bg-white text-slate-950 hover:bg-sky-200'
-              : 'bg-slate-900 text-white hover:bg-indigo-700'
+              : 'bg-stone-900 text-amber-50 hover:bg-amber-700'
           }`}
         >
           <span>{copied ? 'Copiado!' : `Copiar e-mail (${PROFILE.email})`}</span>
@@ -409,14 +411,14 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
             className={`group flex flex-col items-center gap-2.5 rounded-2xl border p-5 transition-all hover:-translate-y-0.5 ${
               isDark
                 ? 'border-white/10 bg-white/[0.04] hover:border-sky-300/40'
-                : 'border-slate-900/10 bg-slate-50/80 hover:border-indigo-500/40'
+                : 'border-amber-900/10 bg-amber-50/55 hover:border-amber-600/40'
             }`}
           >
-            <span className={isDark ? 'text-sky-300' : 'text-indigo-600'}>
+            <span className={isDark ? 'text-sky-300' : 'text-orange-600'}>
               <ContactIcon id={id} />
             </span>
             <span className="font-display text-sm font-bold">{label}</span>
-            <span className={`text-[11px] font-mono break-all ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+            <span className={`text-[11px] font-mono break-all ${isDark ? 'text-slate-400' : 'text-stone-500'}`}>
               {description}
             </span>
           </a>
@@ -425,7 +427,7 @@ function ContatoTab({ isDark, copied, onCopyEmail }) {
 
       <div
         className={`mt-8 flex flex-col items-center justify-between gap-2 border-t pt-5 text-xs font-mono sm:flex-row ${
-          isDark ? 'border-white/10 text-slate-400' : 'border-slate-900/10 text-slate-500'
+          isDark ? 'border-white/10 text-slate-400' : 'border-amber-900/10 text-stone-500'
         }`}
       >
         <span>© 2026 {PROFILE.fullName}</span>

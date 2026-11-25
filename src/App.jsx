@@ -61,7 +61,11 @@ export default function App() {
   const hasModal = Boolean(activeSection)
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden selection:bg-sky-400/30">
+    <div
+      className={`relative min-h-screen w-full overflow-x-hidden ${
+        isDark ? 'selection:bg-sky-400/30' : 'selection:bg-amber-400/35'
+      }`}
+    >
       <CosmicBackground theme={theme} parallax={parallax} />
 
       <SideRail activeSection={activeSection} onSelect={setActiveSection} theme={theme} />
@@ -81,20 +85,26 @@ export default function App() {
             hasModal ? 'pointer-events-none scale-95 opacity-25' : 'opacity-100'
           }`}
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-mono backdrop-blur-md transition-colors duration-300 border-sky-400/30 bg-sky-400/10 text-sky-300 dark:text-sky-300">
+          <div
+            className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-mono backdrop-blur-md transition-colors duration-300 ${
+              isDark
+                ? 'border-sky-400/30 bg-sky-400/10 text-sky-300'
+                : 'border-amber-600/30 bg-amber-500/15 text-amber-900'
+            }`}
+          >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                isDark ? 'bg-sky-300' : 'bg-indigo-600'
+                isDark ? 'bg-sky-300' : 'bg-orange-500'
               }`}
             />
-            <span className={isDark ? 'text-sky-200' : 'text-indigo-700 font-semibold'}>
+            <span className={isDark ? 'text-sky-200' : 'text-amber-900 font-semibold'}>
               Computer Vision &amp; IA
             </span>
           </div>
 
           <h1
             className={`font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-[3.4rem] md:leading-[1.08] ${
-              isDark ? 'text-white' : 'text-slate-950'
+              isDark ? 'text-white' : 'text-stone-950'
             }`}
           >
             {PROFILE.name}
@@ -102,7 +112,7 @@ export default function App() {
 
           <p
             className={`mx-auto mt-3.5 max-w-md text-sm leading-relaxed sm:text-base ${
-              isDark ? 'text-slate-300/90' : 'text-slate-700'
+              isDark ? 'text-slate-300/90' : 'text-stone-700'
             }`}
           >
             {PROFILE.tagline}
@@ -116,7 +126,7 @@ export default function App() {
               className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${
                 isDark
                   ? 'bg-white text-slate-950 shadow-[0_0_28px_rgba(255,255,255,0.22)] hover:bg-sky-100'
-                  : 'bg-slate-950 text-white shadow-[0_12px_28px_rgba(15,23,42,0.2)] hover:bg-indigo-700'
+                  : 'bg-stone-950 text-amber-50 shadow-[0_12px_28px_rgba(120,53,15,0.24)] hover:bg-amber-700'
               }`}
             >
               Explorar projetos
@@ -128,7 +138,7 @@ export default function App() {
               className={`rounded-full border px-5 py-2.5 text-sm font-medium backdrop-blur-md transition-all duration-200 hover:scale-[1.03] ${
                 isDark
                   ? 'border-white/20 bg-white/8 text-slate-100 hover:bg-white/15'
-                  : 'border-slate-900/15 bg-white/75 text-slate-800 hover:bg-white shadow-sm'
+                  : 'border-amber-950/15 bg-white/75 text-stone-800 hover:bg-white shadow-sm'
               }`}
             >
               Sobre mim
@@ -140,7 +150,7 @@ export default function App() {
               className={`rounded-full border px-5 py-2.5 text-sm font-medium backdrop-blur-md transition-all duration-200 hover:scale-[1.03] ${
                 isDark
                   ? 'border-white/20 bg-white/8 text-slate-100 hover:bg-white/15'
-                  : 'border-slate-900/15 bg-white/75 text-slate-800 hover:bg-white shadow-sm'
+                  : 'border-amber-950/15 bg-white/75 text-stone-800 hover:bg-white shadow-sm'
               }`}
             >
               Contato
@@ -149,7 +159,7 @@ export default function App() {
 
           <p
             className={`mt-5 text-[11px] font-mono ${
-              isDark ? 'text-slate-400/80' : 'text-slate-500'
+              isDark ? 'text-slate-400/80' : 'text-stone-600'
             }`}
           >
             Clique em qualquer card ou navegue pelo menu
